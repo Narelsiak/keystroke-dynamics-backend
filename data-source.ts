@@ -1,13 +1,20 @@
-import { User } from 'src/user/entities/user.entity';
+import { ormConfig } from 'ormconfig';
 import { DataSource } from 'typeorm';
+import { createDatabase } from 'typeorm-extension';
 
-export default new DataSource({
-  type: 'mysql',
-  host: 'localhost',
-  port: 3306,
-  username: 'root',
-  password: '',
-  database: 'keystroke-dynamics',
-  entities: [User],
-  migrations: ['src/migrations/*.ts'],
-});
+export default new DataSource(ormConfig);
+
+// Automatyczne tworzenie bazy przy inicjalizacji
+void (async () => {
+  await createDatabase({
+    options: {
+      type: 'mysql',
+      host: 'localhost',
+      port: 3306,
+      username: 'root',
+      password: '',
+      database: 'keystroke-dynamics',
+    },
+    ifNotExist: true, // Tylko jeśli nie istnieje
+  });
+})();
