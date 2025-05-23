@@ -26,4 +26,10 @@ export default tseslint.config(
     },
   },
   eslintNestJs.configs.flatRecommended, // This is the recommended ruleset for this plugin
+  {
+    rules: {
+      '@darraghor/nestjs-typed/controllers-should-supply-api-tags': 'off',
+      '@darraghor/nestjs-typed/api-method-should-specify-api-response': 'off',
+    },
+  },
 );
