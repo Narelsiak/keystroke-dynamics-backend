@@ -7,6 +7,8 @@ export class UserResponseDto {
   firstName: string | null;
   lastName: string | null;
   isActive: boolean;
+  updatedAt: Date;
+  createdAt: Date;
 
   constructor(user: User) {
     this.id = user.id;
@@ -14,5 +16,7 @@ export class UserResponseDto {
     this.firstName = user.firstName;
     this.lastName = user.lastName;
     this.isActive = user.isActive;
+    this.createdAt = user.createdAt;
+    this.updatedAt = user.updatedAt;
   }
 }

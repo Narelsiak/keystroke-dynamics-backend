@@ -4,7 +4,12 @@ import { ValidationPipe } from '@nestjs/common';
 import session from 'express-session';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    cors: {
+      origin: 'http://localhost:3000',
+      credentials: true,
+    },
+  });
 
   app.useGlobalPipes(new ValidationPipe());
   app.use(
@@ -20,6 +25,6 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(process.env.PORT ?? 5000);
 }
 void bootstrap();
