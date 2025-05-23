@@ -25,11 +25,18 @@ export default tseslint.config(
       },
     },
   },
-  eslintNestJs.configs.flatRecommended, // This is the recommended ruleset for this plugin
+  eslintNestJs.configs.flatRecommended, // NestJS rules
   {
     rules: {
       '@darraghor/nestjs-typed/controllers-should-supply-api-tags': 'off',
       '@darraghor/nestjs-typed/api-method-should-specify-api-response': 'off',
+      'prettier/prettier': [
+        'error',
+        {
+          endOfLine: 'auto',
+        },
+      ],
     },
   },
+  eslintPluginPrettierRecommended, // <-- DODAJ TO NA KOŃCU!
 );
