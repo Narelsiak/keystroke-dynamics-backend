@@ -108,12 +108,12 @@ export class UserController {
     return { message: 'Secret word updated successfully' };
   }
 
-  @Post('validate-style')
-  async validateStyle(
+  @Post('add-data')
+  async addData(
     @Body()
     body: {
       keyPresses: KeyPressDto[];
-      password: string;
+      secretWord: string;
     },
     @Req() req: Request,
   ): Promise<{ success: boolean }> {
@@ -124,13 +124,13 @@ export class UserController {
 
     const user = await this.userService.findById(userId);
 
-    if (user?.secretWord !== body.password) {
+    if (user?.secretWord !== body.secretWord) {
       throw new UnauthorizedException('Invalid secret word');
     }
 
     const { success, keyPresses } = this.keystrokeService.validateUserStyle(
       body.keyPresses,
-      body.password,
+      body.secretWord,
     );
 
     if (success) {
