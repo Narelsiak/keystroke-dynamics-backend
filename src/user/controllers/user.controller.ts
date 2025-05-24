@@ -19,6 +19,7 @@ import { LoginUserDto } from '../dto/login-user.dto';
 import { KeystrokeService } from 'src/keystroke/services/keystroke.service';
 import { KeystrokeAttemptService } from 'src/keystroke/services/keystroke-attempt.service';
 import { KeyPressDto } from 'src/keystroke/dto/key-press.dto';
+import { SetSecretWordDto } from 'src/keystroke/dto/set-secret-word.dto';
 
 @Controller('users')
 export class UserController {
@@ -94,7 +95,7 @@ export class UserController {
 
   @Patch('secret-word')
   async setSecretWord(
-    @Body('secretWord') secretWord: string,
+    @Body() body: SetSecretWordDto,
     @Req() req: Request,
   ): Promise<{ message: string }> {
     const userId = req.session.userId;
@@ -102,7 +103,7 @@ export class UserController {
       throw new BadRequestException('User not logged in');
     }
 
-    await this.userService.updateSecretWord(userId, secretWord);
+    await this.userService.updateSecretWord(userId, body.secretWord);
 
     return { message: 'Secret word updated successfully' };
   }
