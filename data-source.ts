@@ -1,4 +1,4 @@
-import { ormConfig } from 'ormconfig';
+import { ormConfig } from './ormconfig';
 import { DataSource } from 'typeorm';
 import { createDatabase } from 'typeorm-extension';
 

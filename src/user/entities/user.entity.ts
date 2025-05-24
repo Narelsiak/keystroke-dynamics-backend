@@ -4,7 +4,9 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
+import { PasswordAttempt } from '../../keystroke/entities/passwordAttempt.entity';
 
 @Entity()
 export class User {
@@ -31,4 +33,7 @@ export class User {
 
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
+
+  @OneToMany(() => PasswordAttempt, (attempt) => attempt.userId)
+  passwordAttempts: PasswordAttempt[];
 }

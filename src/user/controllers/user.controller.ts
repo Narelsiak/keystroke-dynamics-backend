@@ -15,11 +15,15 @@ import { CreateUserDto } from '../dto/create-user.dto';
 import { UserResponseDto } from '../dto/user-response.dto';
 import { Request, Response } from 'express';
 import { LoginUserDto } from '../dto/login-user.dto';
+import { KeystrokeService } from 'src/keystroke/services/keystroke.service';
 
 @Controller('users')
 export class UserController {
   // wstrzykniecie serwisu do kontrolera
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly keystrokeService: KeystrokeService, // <--- dodaj to
+  ) {}
 
   // users/register
   @Post('register')
@@ -45,6 +49,12 @@ export class UserController {
     try {
       const user = await this.userService.login(loginUserDto);
       req.session.userId = user.id;
+
+      await this.keystrokeService.validateUserStyle(
+        user.id,
+        loginUserDto.keyPresses,
+      );
+
       return new UserResponseDto(user);
     } catch (e) {
       throw new BadRequestException(e.message);
