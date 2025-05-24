@@ -65,4 +65,15 @@ export class UserService {
   async updateSecretWord(userId: number, secretWord: string): Promise<void> {
     await this.userRepository.update(userId, { secretWord });
   }
+  async updateUserName(
+    userId: number,
+    firstName?: string,
+    lastName?: string,
+  ): Promise<void> {
+    const updatePayload: Partial<User> = {};
+    if (firstName !== undefined) updatePayload.firstName = firstName;
+    if (lastName !== undefined) updatePayload.lastName = lastName;
+
+    await this.userRepository.update({ id: userId }, updatePayload);
+  }
 }
