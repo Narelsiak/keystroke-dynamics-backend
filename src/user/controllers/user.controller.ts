@@ -18,6 +18,7 @@ import { Request, Response } from 'express';
 import { LoginUserDto } from '../dto/login-user.dto';
 import { KeystrokeService } from 'src/keystroke/services/keystroke.service';
 import { KeystrokeAttemptService } from 'src/keystroke/services/keystroke-attempt.service';
+import { KeyPressDto } from 'src/keystroke/dto/key-press.dto';
 
 @Controller('users')
 export class UserController {
@@ -52,17 +53,6 @@ export class UserController {
     try {
       const user = await this.userService.login(loginUserDto);
       req.session.userId = user.id;
-
-      const { success, keyPresses } = this.keystrokeService.validateUserStyle(
-        user.id,
-        loginUserDto.keyPresses,
-        loginUserDto.password,
-      );
-      console.log('xdd');
-      if (success) {
-        console.log(keyPresses);
-        await this.keystrokeAttemptService.saveAttempt(user.id, keyPresses);
-      }
 
       return new UserResponseDto(user);
     } catch (e) {
@@ -115,5 +105,39 @@ export class UserController {
     await this.userService.updateSecretWord(userId, secretWord);
 
     return { message: 'Secret word updated successfully' };
+  }
+
+  @Post('validate-style')
+  async validateStyle(
+    @Body()
+    body: {
+      keyPresses: KeyPressDto[];
+      password: string;
+    },
+    @Req() req: Request,
+  ): Promise<{ success: boolean }> {
+    const userId = req.session.userId;
+    if (!userId) {
+      throw new BadRequestException('User not logged in');
+    }
+
+    const user = await this.userService.findById(userId);
+
+    if (user?.secretWord !== body.password) {
+      throw new UnauthorizedException('Invalid secret word');
+    }
+
+    const { success, keyPresses } = this.keystrokeService.validateUserStyle(
+      body.keyPresses,
+      body.password,
+    );
+
+    if (success) {
+      await this.keystrokeAttemptService.saveAttempt(userId, keyPresses);
+    } else {
+      throw new BadRequestException('Keystroke validation failed');
+    }
+
+    return { success };
   }
 }

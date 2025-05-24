@@ -4,16 +4,15 @@ import { KeyPressDto } from '../dto/key-press.dto';
 @Injectable()
 export class KeystrokeService {
   validateUserStyle(
-    userId: number,
     keyPresses: KeyPressDto[],
     loginPassword: string,
   ): { success: boolean; keyPresses: KeyPressDto[] } {
-    console.log(`Validating keystroke dynamics for user ID: ${userId}`);
-    console.log(`Total key presses received: ${keyPresses.length}`);
+    // console.log(`Validating keystroke dynamics for user ID: ${userId}`);
+    // console.log(`Total key presses received: ${keyPresses.length}`);
 
-    for (const press of keyPresses) {
-      console.log(`Key value: ${press.value}`);
-    }
+    // for (const press of keyPresses) {
+    //   console.log(`Key value: ${press.value}`);
+    // }
 
     const reconstructKeyPresses = this.reconstructKeyPresses(keyPresses);
 

@@ -1,7 +1,4 @@
-import { IsEmail, IsString, IsArray, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
-
-import { KeyPressDto } from 'src/keystroke/dto/key-press.dto';
+import { IsEmail, IsString } from 'class-validator';
 
 export class LoginUserDto {
   @IsEmail()
@@ -9,9 +6,4 @@ export class LoginUserDto {
 
   @IsString()
   password: string;
-
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => KeyPressDto)
-  keyPresses: KeyPressDto[];
 }
