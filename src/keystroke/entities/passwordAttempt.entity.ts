@@ -5,16 +5,20 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  ManyToOne,
 } from 'typeorm';
-
+import { User } from '../../user/entities/user.entity';
 import { KeystrokeEvent } from './keystrokeEvent.entity';
 @Entity()
 export class PasswordAttempt {
   @PrimaryGeneratedColumn({ name: 'id' })
   id: number;
 
+  @ManyToOne(() => User, (user) => user.passwordAttempts)
+  user: User; // relacja do User
+
   @Column({ name: 'user_id' })
-  userId: number;
+  userId: number; // kolumna do przechowywania userId
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

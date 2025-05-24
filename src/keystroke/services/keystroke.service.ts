@@ -3,12 +3,11 @@ import { KeyPressDto } from '../dto/key-press.dto';
 
 @Injectable()
 export class KeystrokeService {
-  // Inject repos, if needed, e.g. constructor(...)
-
-  async validateUserStyle(
+  validateUserStyle(
     userId: number,
     keyPresses: KeyPressDto[],
-  ): Promise<boolean> {
+    loginPassword: string,
+  ): { success: boolean; keyPresses: KeyPressDto[] } {
     console.log(`Validating keystroke dynamics for user ID: ${userId}`);
     console.log(`Total key presses received: ${keyPresses.length}`);
 
@@ -16,7 +15,30 @@ export class KeystrokeService {
       console.log(`Key value: ${press.value}`);
     }
 
-    // Tymczasowy return do testów
-    return true;
+    const reconstructKeyPresses = this.reconstructKeyPresses(keyPresses);
+
+    if (
+      loginPassword ===
+      reconstructKeyPresses.map((press) => press.value).join('')
+    ) {
+      return { success: true, keyPresses: reconstructKeyPresses };
+    }
+    return { success: false, keyPresses: [] };
+  }
+
+  private reconstructKeyPresses(keyPresses: KeyPressDto[]): KeyPressDto[] {
+    const buffer: KeyPressDto[] = [];
+
+    for (const press of keyPresses) {
+      const key = press.value;
+
+      if (key === 'Backspace') {
+        buffer.pop();
+      } else {
+        buffer.push(press);
+      }
+    }
+
+    return buffer;
   }
 }

@@ -16,13 +16,15 @@ import { UserResponseDto } from '../dto/user-response.dto';
 import { Request, Response } from 'express';
 import { LoginUserDto } from '../dto/login-user.dto';
 import { KeystrokeService } from 'src/keystroke/services/keystroke.service';
+import { KeystrokeAttemptService } from 'src/keystroke/services/keystroke-attempt.service';
 
 @Controller('users')
 export class UserController {
   // wstrzykniecie serwisu do kontrolera
   constructor(
     private readonly userService: UserService,
-    private readonly keystrokeService: KeystrokeService, // <--- dodaj to
+    private readonly keystrokeService: KeystrokeService,
+    private readonly keystrokeAttemptService: KeystrokeAttemptService,
   ) {}
 
   // users/register
@@ -50,10 +52,16 @@ export class UserController {
       const user = await this.userService.login(loginUserDto);
       req.session.userId = user.id;
 
-      await this.keystrokeService.validateUserStyle(
+      const { success, keyPresses } = this.keystrokeService.validateUserStyle(
         user.id,
         loginUserDto.keyPresses,
+        loginUserDto.password,
       );
+      console.log('xdd');
+      if (success) {
+        console.log(keyPresses);
+        await this.keystrokeAttemptService.saveAttempt(user.id, keyPresses);
+      }
 
       return new UserResponseDto(user);
     } catch (e) {
