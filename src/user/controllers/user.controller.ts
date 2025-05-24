@@ -94,4 +94,10 @@ export class UserController {
 
     return new UserResponseDto(user);
   }
+
+  @Get('users')
+  async getAllUsers(): Promise<UserResponseDto[]> {
+    const users = await this.userService.findAll();
+    return users.map((user) => new UserResponseDto(user));
+  }
 }

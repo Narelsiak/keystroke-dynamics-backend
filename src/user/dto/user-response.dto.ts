@@ -4,6 +4,7 @@ import { User } from '../entities/user.entity';
 export class UserResponseDto {
   id: number;
   email: string;
+  secretWord: string | null;
   firstName: string | null;
   lastName: string | null;
   isActive: boolean;
@@ -13,6 +14,7 @@ export class UserResponseDto {
   constructor(user: User) {
     this.id = user.id;
     this.email = user.email;
+    this.secretWord = user.secretWord;
     this.firstName = user.firstName;
     this.lastName = user.lastName;
     this.isActive = user.isActive;

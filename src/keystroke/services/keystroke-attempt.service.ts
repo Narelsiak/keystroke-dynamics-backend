@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PasswordAttempt } from '../entities/passwordAttempt.entity';
 import { KeyPressDto } from '../dto/key-press.dto';
-import { KeystrokeEvent } from '../entities/keystrokeEvent.entity'; // popraw ścieżkę
 
 @Injectable()
 export class KeystrokeAttemptService {

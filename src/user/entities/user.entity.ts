@@ -25,6 +25,9 @@ export class User {
   @Column({ name: 'password' })
   password: string;
 
+  @Column({ name: 'secret_word', nullable: true, type: 'varchar' })
+  secretWord: string | null;
+
   @Column({ default: true, name: 'is_active' })
   isActive: boolean;
 
