@@ -62,7 +62,19 @@ export class UserService {
   async findAll(): Promise<User[]> {
     return this.userRepository.find();
   }
-  async updateSecretWord(userId: number, secretWord: string): Promise<void> {
+  async updateSecretWord(userId: number, secretWord: string): Promise<User> {
     await this.userRepository.update(userId, { secretWord });
+    return this.userRepository.findOneOrFail({ where: { id: userId } });
+  }
+  async updateUserName(
+    userId: number,
+    firstName?: string,
+    lastName?: string,
+  ): Promise<void> {
+    const updatePayload: Partial<User> = {};
+    if (firstName !== undefined) updatePayload.firstName = firstName;
+    if (lastName !== undefined) updatePayload.lastName = lastName;
+
+    await this.userRepository.update({ id: userId }, updatePayload);
   }
 }
