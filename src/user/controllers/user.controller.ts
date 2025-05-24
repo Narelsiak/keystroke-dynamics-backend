@@ -8,6 +8,7 @@ import {
   Get,
   UnauthorizedException,
   Res,
+  Patch,
 } from '@nestjs/common';
 
 import { UserService } from '../services/user.service';
@@ -99,5 +100,20 @@ export class UserController {
   async getAllUsers(): Promise<UserResponseDto[]> {
     const users = await this.userService.findAll();
     return users.map((user) => new UserResponseDto(user));
+  }
+
+  @Patch('secret-word')
+  async setSecretWord(
+    @Body('secretWord') secretWord: string,
+    @Req() req: Request,
+  ): Promise<{ message: string }> {
+    const userId = req.session.userId;
+    if (!userId) {
+      throw new BadRequestException('User not logged in');
+    }
+
+    await this.userService.updateSecretWord(userId, secretWord);
+
+    return { message: 'Secret word updated successfully' };
   }
 }

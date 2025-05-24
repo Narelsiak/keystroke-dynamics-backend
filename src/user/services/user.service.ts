@@ -62,4 +62,7 @@ export class UserService {
   async findAll(): Promise<User[]> {
     return this.userRepository.find();
   }
+  async updateSecretWord(userId: number, secretWord: string): Promise<void> {
+    await this.userRepository.update(userId, { secretWord });
+  }
 }
