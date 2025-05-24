@@ -99,15 +99,21 @@ export class UserController {
   async setSecretWord(
     @Body() body: SetSecretWordDto,
     @Req() req: Request,
-  ): Promise<{ message: string }> {
+  ): Promise<{ message: string; secretWord: string | null }> {
     const userId = req.session.userId;
     if (!userId) {
       throw new BadRequestException('User not logged in');
     }
 
-    await this.userService.updateSecretWord(userId, body.secretWord);
+    const updatedUser = await this.userService.updateSecretWord(
+      userId,
+      body.secretWord,
+    );
 
-    return { message: 'Secret word updated successfully' };
+    return {
+      message: 'Secret word updated successfully',
+      secretWord: updatedUser.secretWord,
+    };
   }
 
   @Post('validate-style')
