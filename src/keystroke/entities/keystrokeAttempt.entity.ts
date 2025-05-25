@@ -10,11 +10,11 @@ import {
 import { User } from '../../user/entities/user.entity';
 import { KeystrokeEvent } from './keystrokeEvent.entity';
 @Entity()
-export class PasswordAttempt {
+export class KeystrokeAttempt {
   @PrimaryGeneratedColumn({ name: 'id' })
   id: number;
 
-  @ManyToOne(() => User, (user) => user.passwordAttempts)
+  @ManyToOne(() => User, (user) => user.keystrokeAttempts)
   user: User; // relacja do User
 
   @Column({ name: 'user_id' })

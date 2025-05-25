@@ -22,6 +22,7 @@ import { KeystrokeAttemptService } from 'src/keystroke/services/keystroke-attemp
 import { KeyPressDto } from 'src/keystroke/dto/key-press.dto';
 import { SetSecretWordDto } from 'src/keystroke/dto/set-secret-word.dto';
 import { UpdateUserNameDto } from '../dto/update-user-data.dto';
+import { KeystrokeAttemptDto } from 'src/keystroke/dto/keystroke-attempt.dto';
 
 @Controller('users')
 export class UserController {
@@ -170,5 +171,29 @@ export class UserController {
       throw new NotFoundException('User not found');
     }
     return new UserResponseDto(updatedUser);
+  }
+
+  @Get('attempts')
+  async getUserAttempts(@Req() req: Request): Promise<KeystrokeAttemptDto[]> {
+    const userId = req.session.userId;
+    if (!userId) {
+      throw new BadRequestException('User not logged in');
+    }
+
+    const attempts =
+      await this.keystrokeAttemptService.getAttemptsByUserId(userId);
+
+    return attempts.map((attempt) => ({
+      id: attempt.id,
+      createdAt: attempt.createdAt,
+      keyPresses: attempt.keystrokes.map((event) => ({
+        value: event.character,
+        pressedAt: event.pressedAt.toString(),
+        releasedAt: event.releasedAt.toString(),
+        pressDuration: event.pressDuration,
+        waitDuration: event.waitDuration,
+        modifiers: event.modifiers,
+      })),
+    }));
   }
 }

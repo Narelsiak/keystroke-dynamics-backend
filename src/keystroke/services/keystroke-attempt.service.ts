@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { PasswordAttempt } from '../entities/passwordAttempt.entity';
+import { KeystrokeAttempt } from '../entities/keystrokeAttempt.entity';
 import { KeyPressDto } from '../dto/key-press.dto';
 
 @Injectable()
 export class KeystrokeAttemptService {
   constructor(
-    @InjectRepository(PasswordAttempt)
-    private readonly attemptRepo: Repository<PasswordAttempt>,
+    @InjectRepository(KeystrokeAttempt)
+    private readonly attemptRepo: Repository<KeystrokeAttempt>,
   ) {}
 
   async saveAttempt(userId: number, keyPresses: KeyPressDto[]): Promise<void> {
@@ -27,5 +27,13 @@ export class KeystrokeAttemptService {
     });
 
     await this.attemptRepo.save(attempt);
+  }
+
+  getAttemptsByUserId(userId: number): Promise<KeystrokeAttempt[]> {
+    return this.attemptRepo.find({
+      where: { user: { id: userId } },
+      relations: ['user', 'keystrokes'],
+      order: { createdAt: 'DESC' },
+    });
   }
 }

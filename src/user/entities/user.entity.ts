@@ -6,7 +6,7 @@ import {
   UpdateDateColumn,
   OneToMany,
 } from 'typeorm';
-import { PasswordAttempt } from '../../keystroke/entities/passwordAttempt.entity';
+import { KeystrokeAttempt } from '../../keystroke/entities/keystrokeAttempt.entity';
 
 @Entity()
 export class User {
@@ -37,6 +37,6 @@ export class User {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-  @OneToMany(() => PasswordAttempt, (attempt) => attempt.userId)
-  passwordAttempts: PasswordAttempt[];
+  @OneToMany(() => KeystrokeAttempt, (attempt) => attempt.userId)
+  keystrokeAttempts: KeystrokeAttempt[];
 }

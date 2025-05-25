@@ -7,7 +7,7 @@ import {
   ManyToOne,
 } from 'typeorm';
 
-import { PasswordAttempt } from './passwordAttempt.entity';
+import { KeystrokeAttempt } from './keystrokeAttempt.entity';
 
 @Entity()
 export class KeystrokeEvent {
@@ -49,8 +49,8 @@ export class KeystrokeEvent {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-  @ManyToOne(() => PasswordAttempt, (attempt) => attempt.keystrokes, {
+  @ManyToOne(() => KeystrokeAttempt, (attempt) => attempt.keystrokes, {
     onDelete: 'CASCADE',
   })
-  attempt: PasswordAttempt;
+  attempt: KeystrokeAttempt; // relacja do KeystrokeAttempt
 }
