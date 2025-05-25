@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 import { KeystrokeEvent } from './keystrokeEvent.entity';
+import { SecretWord } from 'src/user/entities/secret-word.entity';
 @Entity()
 export class KeystrokeAttempt {
   @PrimaryGeneratedColumn({ name: 'id' })
@@ -28,4 +29,9 @@ export class KeystrokeAttempt {
 
   @OneToMany(() => KeystrokeEvent, (ke) => ke.attempt, { cascade: true })
   keystrokes: KeystrokeEvent[];
+
+  @ManyToOne(() => SecretWord, (secretWord) => secretWord.attempts, {
+    onDelete: 'CASCADE',
+  })
+  secretWord: SecretWord;
 }

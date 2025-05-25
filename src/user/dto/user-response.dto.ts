@@ -14,11 +14,16 @@ export class UserResponseDto {
   constructor(user: User) {
     this.id = user.id;
     this.email = user.email;
-    this.secretWord = user.secretWord;
     this.firstName = user.firstName;
     this.lastName = user.lastName;
     this.isActive = user.isActive;
     this.createdAt = user.createdAt;
     this.updatedAt = user.updatedAt;
+
+    if (user.secretWords.length > 0) {
+      this.secretWord = user.secretWords[user.secretWords.length - 1].word;
+    } else {
+      this.secretWord = null;
+    }
   }
 }

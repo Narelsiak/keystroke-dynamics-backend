@@ -6,12 +6,16 @@ import { User } from '../entities/user.entity';
 import { CreateUserDto } from '../dto/create-user.dto';
 import * as bcrypt from 'bcryptjs';
 import { LoginUserDto } from '../dto/login-user.dto';
+import { SecretWord } from '../entities/secret-word.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+
+    @InjectRepository(SecretWord)
+    private secretWordRepository: Repository<SecretWord>,
   ) {}
 
   async register(createUserDto: CreateUserDto): Promise<User> {
@@ -36,9 +40,11 @@ export class UserService {
   }
 
   async login(loginUserDto: LoginUserDto): Promise<User> {
-    const user = await this.userRepository.findOneBy({
-      email: loginUserDto.email,
+    const user = await this.userRepository.findOne({
+      where: { email: loginUserDto.email },
+      relations: ['secretWords'],
     });
+
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -56,16 +62,27 @@ export class UserService {
   }
 
   async findById(id: number): Promise<User | null> {
-    return this.userRepository.findOneBy({ id });
+    return this.userRepository.findOne({
+      where: { id },
+      relations: ['secretWords'],
+    });
   }
 
   async findAll(): Promise<User[]> {
-    return this.userRepository.find();
+    return this.userRepository.find({
+      relations: ['secretWords'],
+    });
   }
-  async updateSecretWord(userId: number, secretWord: string): Promise<User> {
-    await this.userRepository.update(userId, { secretWord });
-    return this.userRepository.findOneOrFail({ where: { id: userId } });
+
+  async addSecretWord(userId: number, secretWord: string): Promise<SecretWord> {
+    const secretWordEntity = this.secretWordRepository.create({
+      user: { id: userId },
+      word: secretWord,
+    });
+
+    return await this.secretWordRepository.save(secretWordEntity);
   }
+
   async updateUserName(
     userId: number,
     firstName?: string,

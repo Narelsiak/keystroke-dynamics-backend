@@ -11,10 +11,15 @@ export class KeystrokeAttemptService {
     private readonly attemptRepo: Repository<KeystrokeAttempt>,
   ) {}
 
-  async saveAttempt(userId: number, keyPresses: KeyPressDto[]): Promise<void> {
+  async saveAttempt(
+    userId: number,
+    keyPresses: KeyPressDto[],
+    wordId: number,
+  ): Promise<void> {
     // Tworzymy nową próbę z userId (user powiązany przez userId)
     const attempt = this.attemptRepo.create({
-      userId,
+      user: { id: userId },
+      secretWord: { id: wordId },
       keystrokes: keyPresses.map((kp, index) => ({
         character: kp.value,
         pressedAt: new Date(kp.pressedAt).getTime(),
@@ -29,10 +34,41 @@ export class KeystrokeAttemptService {
     await this.attemptRepo.save(attempt);
   }
 
-  getAttemptsByUserId(userId: number): Promise<KeystrokeAttempt[]> {
+  async getAttemptsByUserIdAndSecretWordId(
+    userId: number,
+    secretWordId: number,
+  ): Promise<KeystrokeAttempt[]> {
     return this.attemptRepo.find({
-      where: { user: { id: userId } },
-      relations: ['user', 'keystrokes'],
+      where: {
+        user: { id: userId },
+        secretWord: { id: secretWordId },
+      },
+      relations: ['keystrokes'],
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async findById(id: number): Promise<KeystrokeAttempt | null> {
+    return this.attemptRepo.findOne({
+      where: { id },
+      relations: ['user', 'secretWord', 'keystrokes'],
+    });
+  }
+
+  async delete(id: number): Promise<void> {
+    await this.attemptRepo.delete(id);
+  }
+
+  async getAttemptsByUserIdAndWordId(
+    userId: number,
+    secretWordId: number,
+  ): Promise<KeystrokeAttempt[]> {
+    return this.attemptRepo.find({
+      where: {
+        user: { id: userId },
+        secretWord: { id: secretWordId },
+      },
+      relations: ['keystrokes'],
       order: { createdAt: 'DESC' },
     });
   }

@@ -7,6 +7,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { KeystrokeAttempt } from '../../keystroke/entities/keystrokeAttempt.entity';
+import { SecretWord } from './secret-word.entity';
 
 @Entity()
 export class User {
@@ -25,8 +26,8 @@ export class User {
   @Column({ name: 'password' })
   password: string;
 
-  @Column({ name: 'secret_word', nullable: true, type: 'varchar' })
-  secretWord: string | null;
+  @OneToMany(() => SecretWord, (secretWord) => secretWord.user)
+  secretWords: SecretWord[];
 
   @Column({ default: true, name: 'is_active' })
   isActive: boolean;

@@ -10,6 +10,10 @@ import {
   Res,
   Patch,
   NotFoundException,
+  Delete,
+  Param,
+  ForbiddenException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 
 import { UserService } from '../services/user.service';
@@ -100,20 +104,20 @@ export class UserController {
   async setSecretWord(
     @Body() body: SetSecretWordDto,
     @Req() req: Request,
-  ): Promise<{ message: string; secretWord: string | null }> {
+  ): Promise<{ message: string; secretWord: string }> {
     const userId = req.session.userId;
     if (!userId) {
       throw new BadRequestException('User not logged in');
     }
 
-    const updatedUser = await this.userService.updateSecretWord(
+    const newSecretWord = await this.userService.addSecretWord(
       userId,
       body.secretWord,
     );
 
     return {
-      message: 'Secret word updated successfully',
-      secretWord: updatedUser.secretWord,
+      message: 'Secret word added successfully',
+      secretWord: newSecretWord.word,
     };
   }
 
@@ -133,7 +137,12 @@ export class UserController {
 
     const user = await this.userService.findById(userId);
 
-    if (user?.secretWord !== body.secretWord) {
+    const latestSecretWord =
+      user && user.secretWords.length > 0
+        ? user.secretWords[user.secretWords.length - 1]
+        : null;
+
+    if (latestSecretWord?.word !== body.secretWord) {
       throw new UnauthorizedException('Invalid secret word');
     }
 
@@ -143,7 +152,11 @@ export class UserController {
     );
 
     if (success) {
-      await this.keystrokeAttemptService.saveAttempt(userId, keyPresses);
+      await this.keystrokeAttemptService.saveAttempt(
+        userId,
+        keyPresses,
+        latestSecretWord.id,
+      );
     } else {
       throw new BadRequestException('Keystroke validation failed');
     }
@@ -180,8 +193,19 @@ export class UserController {
       throw new BadRequestException('User not logged in');
     }
 
+    const user = await this.userService.findById(userId);
+
+    if (!user || user.secretWords.length === 0) {
+      return [];
+    }
+
+    const latestSecretWord = user.secretWords[user.secretWords.length - 1];
+
     const attempts =
-      await this.keystrokeAttemptService.getAttemptsByUserId(userId);
+      await this.keystrokeAttemptService.getAttemptsByUserIdAndSecretWordId(
+        userId,
+        latestSecretWord.id,
+      );
 
     return attempts.map((attempt) => ({
       id: attempt.id,
@@ -195,5 +219,63 @@ export class UserController {
         modifiers: event.modifiers,
       })),
     }));
+  }
+
+  @Delete('attempts/:id')
+  async deleteAttempt(
+    @Param('id') attemptId: number,
+    @Req() req: Request,
+  ): Promise<{ message: string; remainingAttempts: KeystrokeAttemptDto[] }> {
+    const userId = req.session.userId;
+    if (!userId) {
+      throw new BadRequestException('User not logged in');
+    }
+
+    const attempt = await this.keystrokeAttemptService.findById(attemptId);
+
+    if (!attempt) {
+      throw new NotFoundException('Attempt not found');
+    }
+
+    if (attempt.user.id !== userId) {
+      throw new ForbiddenException(
+        'You do not have permission to delete this attempt',
+      );
+    }
+
+    console.log('Attempt to delete:', attempt);
+    const secretWordId = attempt.secretWord.id;
+    if (!secretWordId) {
+      throw new InternalServerErrorException(
+        'Attempt has no associated secret word',
+      );
+    }
+    await this.keystrokeAttemptService.delete(attemptId);
+
+    const remaining =
+      await this.keystrokeAttemptService.getAttemptsByUserIdAndWordId(
+        userId,
+        secretWordId,
+      );
+
+    const remainingAttempts: KeystrokeAttemptDto[] = remaining.map(
+      (attempt) => ({
+        id: attempt.id,
+        createdAt: attempt.createdAt,
+        keyPresses: attempt.keystrokes.map((event) => ({
+          value: event.character,
+          pressedAt: event.pressedAt.toString(),
+          releasedAt: event.releasedAt.toString(),
+          pressDuration: event.pressDuration,
+          waitDuration: event.waitDuration,
+          modifiers: event.modifiers,
+        })),
+      }),
+    );
+
+    return {
+      message: 'Attempt deleted successfully',
+      remainingAttempts,
+    };
   }
 }
