@@ -15,7 +15,7 @@ export class KeystrokeAttemptService {
     userId: number,
     keyPresses: KeyPressDto[],
     wordId: number,
-  ): Promise<void> {
+  ): Promise<KeystrokeAttempt> {
     // Tworzymy nową próbę z userId (user powiązany przez userId)
     const attempt = this.attemptRepo.create({
       user: { id: userId },
@@ -31,7 +31,7 @@ export class KeystrokeAttemptService {
       })),
     });
 
-    await this.attemptRepo.save(attempt);
+    return await this.attemptRepo.save(attempt);
   }
 
   async getAttemptsByUserIdAndSecretWordId(
