@@ -22,8 +22,8 @@ export class KeystrokeAttemptService {
       secretWord: { id: wordId },
       keystrokes: keyPresses.map((kp, index) => ({
         character: kp.value,
-        pressedAt: new Date(kp.pressedAt).getTime(),
-        releasedAt: new Date(kp.releasedAt).getTime(),
+        pressedAt: kp.pressedAt,
+        releasedAt: kp.releasedAt,
         pressDuration: kp.pressDuration,
         waitDuration: kp.waitDuration,
         modifiers: kp.modifiers,

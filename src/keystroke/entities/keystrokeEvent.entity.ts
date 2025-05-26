@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 
 import { KeystrokeAttempt } from './keystrokeAttempt.entity';
@@ -14,17 +15,18 @@ export class KeystrokeEvent {
   @PrimaryGeneratedColumn()
   id: number;
 
-  // znak, czyli wartość klawisza
+  @Column({ name: 'attempt_id' })
+  keystrokeAttemptId: number;
+
   @Column()
   character: string;
 
   // kiedy wciśnięto (timestamp jako liczba milisekund)
-  @Column('bigint')
-  pressedAt: number;
+  @Column('datetime', { nullable: true, precision: 3 })
+  pressedAt: Date;
 
-  // kiedy puszczono (timestamp jako liczba milisekund)
-  @Column('bigint')
-  releasedAt: number;
+  @Column('datetime', { nullable: true, precision: 3 })
+  releasedAt: Date;
 
   // ile trwało wciśnięcie w ms
   @Column()
@@ -52,5 +54,6 @@ export class KeystrokeEvent {
   @ManyToOne(() => KeystrokeAttempt, (attempt) => attempt.keystrokes, {
     onDelete: 'CASCADE',
   })
+  @JoinColumn({ name: 'attempt_id' })
   attempt: KeystrokeAttempt; // relacja do KeystrokeAttempt
 }
