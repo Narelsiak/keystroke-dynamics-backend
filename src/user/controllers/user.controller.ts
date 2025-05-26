@@ -208,9 +208,14 @@ export class UserController {
         latestSecretWord.id,
       );
 
+    // odchylenia
+    // zmienna isCorrect będzie informować o tym, czy próbka jest dobra uwzględniając próg akceptowalny (ty miales 0.25, 0.75 na sztywno).
+    // czyli jesli sie miesci to true a jak nie to false i ja moze uzytkownik wywalic
+    // oprocz tego fajnie by bylo dodac info o w jakim stopniu jest ona zbiezna do ideału (0.5) czyli np majac 0.88 bedzie uzasadnione czemu jest ona do wywalenia
     return attempts.map((attempt) => ({
       id: attempt.id,
       createdAt: attempt.createdAt,
+      isCorrect: true,
       keyPresses: attempt.keystrokes.map((event) => ({
         value: event.character,
         pressedAt: event.pressedAt.toString(),
@@ -258,9 +263,11 @@ export class UserController {
         secretWordId,
       );
 
+    // TODO isCorrect
     const remainingAttempts: KeystrokeAttemptDto[] = remaining.map(
       (attempt) => ({
         id: attempt.id,
+        isCorrect: false,
         createdAt: attempt.createdAt,
         keyPresses: attempt.keystrokes.map((event) => ({
           value: event.character,
