@@ -49,6 +49,7 @@ export class UserController {
       req.session.userId = user.id;
       return new UserResponseDto(user);
     } catch (e) {
+      console.log(e);
       throw new BadRequestException(e.message);
     }
   }
@@ -138,7 +139,7 @@ export class UserController {
     const user = await this.userService.findById(userId);
 
     const latestSecretWord =
-      user && user.secretWords.length > 0
+      user?.secretWords && user.secretWords.length > 0
         ? user.secretWords[user.secretWords.length - 1]
         : null;
 
@@ -195,7 +196,7 @@ export class UserController {
 
     const user = await this.userService.findById(userId);
 
-    if (!user || user.secretWords.length === 0) {
+    if (!user?.secretWords?.length) {
       return [];
     }
 
@@ -243,7 +244,6 @@ export class UserController {
       );
     }
 
-    console.log('Attempt to delete:', attempt);
     const secretWordId = attempt.secretWord.id;
     if (!secretWordId) {
       throw new InternalServerErrorException(

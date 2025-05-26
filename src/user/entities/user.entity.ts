@@ -27,7 +27,7 @@ export class User {
   password: string;
 
   @OneToMany(() => SecretWord, (secretWord) => secretWord.user)
-  secretWords: SecretWord[];
+  secretWords?: SecretWord[];
 
   @Column({ default: true, name: 'is_active' })
   isActive: boolean;
