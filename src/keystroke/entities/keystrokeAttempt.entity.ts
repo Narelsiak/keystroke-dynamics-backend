@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
   OneToMany,
   ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
 import { KeystrokeEvent } from './keystrokeEvent.entity';
@@ -15,11 +16,11 @@ export class KeystrokeAttempt {
   @PrimaryGeneratedColumn({ name: 'id' })
   id: number;
 
-  @ManyToOne(() => User, (user) => user.keystrokeAttempts)
-  user: User; // relacja do User
-
   @Column({ name: 'user_id' })
   userId: number; // kolumna do przechowywania userId
+
+  @Column({ name: 'secret_word_id' })
+  secretWordId: number;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
@@ -33,5 +34,10 @@ export class KeystrokeAttempt {
   @ManyToOne(() => SecretWord, (secretWord) => secretWord.attempts, {
     onDelete: 'CASCADE',
   })
+  @JoinColumn({ name: 'secret_word_id' })
   secretWord: SecretWord;
+
+  @ManyToOne(() => User, (user) => user.keystrokeAttempts)
+  @JoinColumn({ name: 'user_id' })
+  user: User;
 }

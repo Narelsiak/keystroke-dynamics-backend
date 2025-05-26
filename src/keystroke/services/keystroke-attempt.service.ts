@@ -15,15 +15,15 @@ export class KeystrokeAttemptService {
     userId: number,
     keyPresses: KeyPressDto[],
     wordId: number,
-  ): Promise<void> {
+  ): Promise<KeystrokeAttempt> {
     // Tworzymy nową próbę z userId (user powiązany przez userId)
     const attempt = this.attemptRepo.create({
       user: { id: userId },
       secretWord: { id: wordId },
       keystrokes: keyPresses.map((kp, index) => ({
         character: kp.value,
-        pressedAt: new Date(kp.pressedAt).getTime(),
-        releasedAt: new Date(kp.releasedAt).getTime(),
+        pressedAt: kp.pressedAt,
+        releasedAt: kp.releasedAt,
         pressDuration: kp.pressDuration,
         waitDuration: kp.waitDuration,
         modifiers: kp.modifiers,
@@ -31,7 +31,7 @@ export class KeystrokeAttemptService {
       })),
     });
 
-    await this.attemptRepo.save(attempt);
+    return await this.attemptRepo.save(attempt);
   }
 
   async getAttemptsByUserIdAndSecretWordId(

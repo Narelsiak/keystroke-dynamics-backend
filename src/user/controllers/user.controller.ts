@@ -27,6 +27,7 @@ import { KeyPressDto } from 'src/keystroke/dto/key-press.dto';
 import { SetSecretWordDto } from 'src/keystroke/dto/set-secret-word.dto';
 import { UpdateUserNameDto } from '../dto/update-user-data.dto';
 import { KeystrokeAttemptDto } from 'src/keystroke/dto/keystroke-attempt.dto';
+import { KeystrokeAttempt } from 'src/keystroke/entities/keystrokeAttempt.entity';
 
 @Controller('users')
 export class UserController {
@@ -130,7 +131,7 @@ export class UserController {
       secretWord: string;
     },
     @Req() req: Request,
-  ): Promise<{ success: boolean }> {
+  ): Promise<{ attempt: KeystrokeAttempt }> {
     const userId = req.session.userId;
     if (!userId) {
       throw new BadRequestException('User not logged in');
@@ -153,16 +154,16 @@ export class UserController {
     );
 
     if (success) {
-      await this.keystrokeAttemptService.saveAttempt(
-        userId,
-        keyPresses,
-        latestSecretWord.id,
-      );
+      return {
+        attempt: await this.keystrokeAttemptService.saveAttempt(
+          userId,
+          keyPresses,
+          latestSecretWord.id,
+        ),
+      };
     } else {
       throw new BadRequestException('Keystroke validation failed');
     }
-
-    return { success };
   }
   @Patch('name')
   async updateUserName(
