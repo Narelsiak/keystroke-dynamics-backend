@@ -16,12 +16,18 @@ message KeyPress {
   Modifier modifiers = 4;
 }
 
-message KeyPressList {
+message Attempt {
   repeated KeyPress keyPresses = 1;
 }
 
-message Void {}
+message TrainRequest {
+  repeated Attempt attempts = 1;
+}
+
+message TrainResponse {
+  string message = 1;
+}
 
 service KeystrokeService {
-  rpc Train (KeyPressList) returns (Void);
+  rpc Train (TrainRequest) returns (TrainResponse);
 }
