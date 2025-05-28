@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package keystroke;
+
+message Modifier {
+  bool shift = 1;
+  bool ctrl = 2;
+  bool alt = 3;
+  bool meta = 4;
+}
+
+message KeyPress {
+  string value = 1;
+  int32 pressDuration = 2;
+  int32 waitDuration = 3;
+  Modifier modifiers = 4;
+}
+
+message KeyPressList {
+  repeated KeyPress keyPresses = 1;
+}
+
+message Void {}
+
+service KeystrokeService {
+  rpc Train (KeyPressList) returns (Void);
+}
