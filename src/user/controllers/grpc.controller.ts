@@ -1,4 +1,3 @@
-// ... inne importy
 import {
   Controller,
   Get,
@@ -6,46 +5,22 @@ import {
   Req,
   BadRequestException,
   OnModuleInit,
-  Logger, // Dodaj Logger dla lepszego debugowania
+  Logger,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { ClientGrpc } from '@nestjs/microservices';
-import { firstValueFrom, Observable, of } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { UserService } from '../services/user.service';
 import { KeystrokeAttemptService } from 'src/keystroke/services/keystroke-attempt.service';
+import { keystroke as ks } from 'src/proto/keystroke';
 
-// Idealnie, te typy powinny pochodzić z wygenerowanych plików .d.ts z Twojego .proto
-// Na razie uproszczone interfejsy dla czytelności:
-interface GrpcKeyPress {
-  value: string;
-  pressDuration: number;
-  waitDuration: number;
-  shift: boolean;
-  ctrl: boolean;
-  alt: boolean;
-  meta: boolean;
-}
-
-interface GrpcAttempt {
-  keyPresses: GrpcKeyPress[];
-}
-
-interface GrpcTrainRequest {
-  attempts: GrpcAttempt[];
-}
-
-interface GrpcTrainResponse {
-  message: string;
-}
-
-// Interface gRPC
 interface KeystrokeServiceGrpc {
-  Train(data: GrpcTrainRequest): Observable<GrpcTrainResponse>; // Użyj typów
+  Train(data: ks.TrainRequest): Observable<ks.TrainResponse>;
 }
 
 @Controller('keystrokes')
-export class grpCController implements OnModuleInit {
-  private readonly logger = new Logger(grpCController.name); // Logger
+export class grpcController implements OnModuleInit {
+  private readonly logger = new Logger(grpcController.name);
   private keystrokeService: KeystrokeServiceGrpc;
 
   constructor(
@@ -60,8 +35,7 @@ export class grpCController implements OnModuleInit {
   }
 
   @Get('makemodel')
-  async makeModel(@Req() req: Request): Promise<any[]> {
-    // Zmień `any[]` na coś bardziej konkretnego, np. GrpcAttempt[]
+  async makeModel(@Req() req: Request): Promise<ks.TrainResponse> {
     const userId = req.session.userId;
     if (!userId) {
       throw new BadRequestException('User not logged in');
@@ -70,8 +44,7 @@ export class grpCController implements OnModuleInit {
     const user = await this.userService.findById(userId);
 
     if (!user?.secretWords?.length) {
-      this.logger.warn(`User ${userId} has no secret words.`);
-      return [];
+      throw new BadRequestException('No secret words found for user.');
     }
 
     const latestSecretWord = user.secretWords[user.secretWords.length - 1];
@@ -82,20 +55,15 @@ export class grpCController implements OnModuleInit {
         latestSecretWord.id,
       );
 
-    if (!attempts || attempts.length === 0) {
-      this.logger.warn(
-        `No attempts found for user ${userId} and secret word ${latestSecretWord.id}.`,
-      );
-      return [];
+    if (attempts.length === 0) {
+      throw new BadRequestException('No attempts found.');
     }
 
-    // Poprawione mapowanie
-    const mappedAttempts: GrpcAttempt[] = attempts.map((attempt) => ({
+    const mappedAttempts: ks.Attempt[] = attempts.map((attempt) => ({
       keyPresses: attempt.keystrokes.map((event) => ({
         value: event.character,
         pressDuration: event.pressDuration,
         waitDuration: event.waitDuration,
-        // Rozpakuj obiekt modifiers
         shift: event.modifiers.shift,
         ctrl: event.modifiers.ctrl,
         alt: event.modifiers.alt,
@@ -103,20 +71,17 @@ export class grpCController implements OnModuleInit {
       })),
     }));
 
-    this.logger.log(
-      'Mapped attempts being sent to gRPC:',
-      JSON.stringify(mappedAttempts, null, 2),
-    );
-
     try {
       const response = await firstValueFrom(
-        this.keystrokeService.Train({ attempts: mappedAttempts }),
+        this.keystrokeService.Train({
+          attempts: mappedAttempts,
+          email: user.email,
+        }),
       );
       this.logger.log('gRPC Train response:', response);
-      return mappedAttempts; // Lub response, w zależności co chcesz zwrócić
+      return response;
     } catch (error) {
       this.logger.error('Error calling gRPC Train service:', error);
-      // Możesz rzucić bardziej szczegółowy błąd, jeśli chcesz
       throw new BadRequestException('Failed to train model via gRPC');
     }
   }

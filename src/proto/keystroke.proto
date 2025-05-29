@@ -2,18 +2,23 @@ syntax = "proto3";
 
 package keystroke;
 
-message Modifier {
-  bool shift = 1;
-  bool ctrl = 2;
-  bool alt = 3;
-  bool meta = 4;
-}
-
 message KeyPress {
   string value = 1;
   int32 pressDuration = 2;
-  int32 waitDuration = 3;
-  Modifier modifiers = 4;
+  int32  waitDuration = 3;
+  bool shift = 4;
+  bool ctrl = 5;
+  bool alt = 6;
+  bool meta = 7;
+}
+
+message TrainStats {
+  int32 samples = 1;
+  float final_loss = 2;
+  float min_loss = 3;
+  float max_loss = 4;
+  float avg_loss = 5;
+  float std_loss = 6;
 }
 
 message Attempt {
@@ -22,10 +27,13 @@ message Attempt {
 
 message TrainRequest {
   repeated Attempt attempts = 1;
+  string email = 2;
 }
 
 message TrainResponse {
   string message = 1;
+  TrainStats stats = 2;
+  string id = 3;
 }
 
 service KeystrokeService {
