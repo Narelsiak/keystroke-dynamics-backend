@@ -70,7 +70,7 @@ export class UserController {
     }
   }
 
-  @Post('logout')
+  @Get('logout')
   logout(@Req() req: Request, @Res() res: Response) {
     req.session.destroy((err) => {
       if (err) {
@@ -96,7 +96,7 @@ export class UserController {
     return new UserResponseDto(user);
   }
 
-  @Get('users')
+  @Get('')
   async getAllUsers(): Promise<UserResponseDto[]> {
     const users = await this.userService.findAll();
     return users.map((user) => new UserResponseDto(user));
