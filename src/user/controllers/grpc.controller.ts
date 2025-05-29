@@ -16,6 +16,7 @@ import { keystroke as ks } from 'src/proto/keystroke';
 
 interface KeystrokeServiceGrpc {
   Train(data: ks.TrainRequest): Observable<ks.TrainResponse>;
+  GetModelCount(data: ks.ModelCountRequest): Observable<ks.ModelCountResponse>;
 }
 
 @Controller('keystrokes')
@@ -83,6 +84,32 @@ export class grpcController implements OnModuleInit {
     } catch (error) {
       this.logger.error('Error calling gRPC Train service:', error);
       throw new BadRequestException('Failed to train model via gRPC');
+    }
+  }
+
+  @Get('model-count')
+  async getModelCount(@Req() req: Request): Promise<ks.ModelCountResponse> {
+    const userId = req.session.userId;
+    if (!userId) {
+      throw new BadRequestException('User not logged in');
+    }
+
+    const user = await this.userService.findById(userId);
+
+    if (!user?.email) {
+      throw new BadRequestException('User email not found');
+    }
+
+    try {
+      const response = await firstValueFrom(
+        this.keystrokeService.GetModelCount({
+          email: user.email,
+        }),
+      );
+      return response;
+    } catch (error) {
+      this.logger.error('Error calling gRPC GetModelCount:', error);
+      throw new BadRequestException('Failed to get model count via gRPC');
     }
   }
 }
