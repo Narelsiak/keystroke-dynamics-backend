@@ -78,9 +78,19 @@ export class UserService {
     const secretWordEntity = this.secretWordRepository.create({
       user: { id: userId },
       word: secretWord,
+      isActive: true,
     });
 
     return await this.secretWordRepository.save(secretWordEntity);
+  }
+
+  async deactivateAllSecretWords(userId: number): Promise<void> {
+    await this.secretWordRepository
+      .createQueryBuilder()
+      .update()
+      .set({ isActive: false })
+      .where('user_id = :userId', { userId })
+      .execute();
   }
 
   async updateUserName(

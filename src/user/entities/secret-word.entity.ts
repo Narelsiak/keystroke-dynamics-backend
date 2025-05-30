@@ -21,6 +21,9 @@ export class SecretWord {
   userId: number;
 
   @Column()
+  isActive: boolean;
+
+  @Column()
   word: string;
 
   @CreateDateColumn()

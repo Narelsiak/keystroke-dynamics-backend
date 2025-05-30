@@ -114,6 +114,7 @@ export class UserController {
     if (!userId) {
       throw new BadRequestException('User not logged in');
     }
+    await this.userService.deactivateAllSecretWords(userId);
 
     const newSecretWord = await this.userService.addSecretWord(
       userId,
@@ -142,12 +143,10 @@ export class UserController {
 
     const user = await this.userService.findById(userId);
 
-    const latestSecretWord =
-      user?.secretWords && user.secretWords.length > 0
-        ? user.secretWords[user.secretWords.length - 1]
-        : null;
+    const activeSecretWord =
+      user?.secretWords?.find((sw) => sw.isActive) || null;
 
-    if (latestSecretWord?.word !== body.secretWord) {
+    if (activeSecretWord?.word !== body.secretWord) {
       throw new UnauthorizedException('Invalid secret word');
     }
 
@@ -161,7 +160,7 @@ export class UserController {
         attempt: await this.keystrokeAttemptService.saveAttempt(
           userId,
           keyPresses,
-          latestSecretWord.id,
+          activeSecretWord.id,
         ),
       };
     } else {
@@ -204,12 +203,15 @@ export class UserController {
       return [];
     }
 
-    const latestSecretWord = user.secretWords[user.secretWords.length - 1];
+    const activeSecretWord = user.secretWords.find((sw) => sw.isActive) ?? null;
+    if (!activeSecretWord) {
+      throw new NotFoundException('No active secret word found for user');
+    }
 
     const attempts =
       await this.keystrokeAttemptService.getAttemptsByUserIdAndSecretWordId(
         userId,
-        latestSecretWord.id,
+        activeSecretWord.id,
       );
 
     // odchylenia
