@@ -38,4 +38,34 @@ export class KeystrokeModelService {
       order: { trainedAt: 'DESC' },
     });
   }
+  async deactivateOtherModelsForSecretWord(
+    secretWordId: number,
+  ): Promise<void> {
+    await this.modelRepo.update(
+      { secretWord: { id: secretWordId } },
+      { isActive: false },
+    );
+  }
+
+  async activateModelForUser(modelName: string, userId: number): Promise<void> {
+    const model = await this.modelRepo.findOne({
+      where: {
+        modelName,
+        secretWord: {
+          user: { id: userId },
+        },
+      },
+      relations: ['secretWord', 'secretWord.user'],
+    });
+
+    if (!model) {
+      throw new Error('Model not found or not authorized.');
+    }
+
+    // Deaktywuj inne modele dla tego secretWorda
+    await this.deactivateOtherModelsForSecretWord(model.secretWord.id);
+
+    // Aktywuj wskazany model
+    await this.modelRepo.update({ id: model.id }, { isActive: true });
+  }
 }

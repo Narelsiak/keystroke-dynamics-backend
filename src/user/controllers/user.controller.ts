@@ -29,6 +29,7 @@ import { UpdateUserNameDto } from '../dto/update-user-data.dto';
 import { KeystrokeAttemptDto } from 'src/keystroke/dto/keystroke-attempt.dto';
 import { KeystrokeAttempt } from 'src/keystroke/entities/keystrokeAttempt.entity';
 import { KeystrokeModelService } from 'src/keystroke/services/keystroke-model.service';
+import { KeystrokeModelDto } from 'src/keystroke/dto/list-keystroke-models-response.dto';
 
 @Controller('users')
 export class UserController {
@@ -289,16 +290,7 @@ export class UserController {
     };
   }
   @Get('models')
-  async listModels(@Req() req: Request): Promise<
-    {
-      modelName: string;
-      isActive: boolean;
-      trainedAt: string;
-      samplesUsed: number;
-      loss: number;
-      secretWord: string;
-    }[]
-  > {
+  async listModels(@Req() req: Request): Promise<KeystrokeModelDto[]> {
     const userId = req.session.userId;
     if (!userId) {
       throw new BadRequestException('User not logged in');
@@ -314,5 +306,34 @@ export class UserController {
       loss: model.loss,
       secretWord: model.secretWord.word,
     }));
+  }
+
+  @Patch('models/activate')
+  async activateModel(
+    @Body('modelName') modelName: string,
+    @Req() req: Request,
+  ): Promise<KeystrokeModelDto[]> {
+    const userId = req.session.userId;
+    if (!userId) {
+      throw new BadRequestException('User not logged in');
+    }
+
+    try {
+      await this.keyStrokeModelService.activateModelForUser(modelName, userId);
+
+      const models = await this.keyStrokeModelService.getModelsByUserId(userId);
+
+      return models.map((model) => ({
+        modelName: model.modelName,
+        isActive: model.isActive,
+        trainedAt: model.trainedAt.toISOString(),
+        samplesUsed: model.samplesUsed,
+        loss: model.loss,
+        secretWord: model.secretWord.word,
+      }));
+    } catch (error) {
+      console.error('Error activating model:', error);
+      throw new BadRequestException('Activation failed');
+    }
   }
 }

@@ -102,7 +102,11 @@ export class grpcController implements OnModuleInit {
         }),
       );
       this.logger.log('gRPC Train response:', response);
-      console.log(response.stats?.finalLoss ?? 0);
+
+      await this.keyStrokeModelService.deactivateOtherModelsForSecretWord(
+        selectedSecretWord.id,
+      );
+
       await this.keyStrokeModelService.createModel({
         modelName: response.id ?? '',
         isActive: true,
