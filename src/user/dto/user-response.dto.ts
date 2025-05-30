@@ -5,6 +5,7 @@ export class UserResponseDto {
   id: number;
   email: string;
   secretWord: string | null;
+  hasModel: boolean;
   firstName: string | null;
   lastName: string | null;
   isActive: boolean;
@@ -21,9 +22,14 @@ export class UserResponseDto {
     this.updatedAt = user.updatedAt;
 
     if (user.secretWords && user.secretWords.length > 0) {
-      this.secretWord = user.secretWords[user.secretWords.length - 1].word;
+      const secretWord = user.secretWords.find((word) => word.isActive);
+      if (secretWord) {
+        this.secretWord = secretWord.word;
+        this.hasModel = !!secretWord.models.find((model) => model.isActive);
+      }
     } else {
       this.secretWord = null;
+      this.hasModel = false;
     }
   }
 }

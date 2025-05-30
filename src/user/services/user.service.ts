@@ -70,7 +70,7 @@ export class UserService {
 
   async findAll(): Promise<User[]> {
     return this.userRepository.find({
-      relations: ['secretWords'],
+      relations: ['secretWords', 'secretWords.models'],
     });
   }
 
@@ -103,5 +103,11 @@ export class UserService {
     if (lastName !== undefined) updatePayload.lastName = lastName;
 
     await this.userRepository.update({ id: userId }, updatePayload);
+  }
+  async hasUserUsedSecretWord(userId: number, word: string): Promise<boolean> {
+    const count = await this.secretWordRepository.count({
+      where: { user: { id: userId }, word },
+    });
+    return count > 0;
   }
 }

@@ -9,6 +9,7 @@ import {
   Post,
   Body,
   Query,
+  ForbiddenException,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { ClientGrpc } from '@nestjs/microservices';
@@ -57,6 +58,12 @@ export class grpcController implements OnModuleInit {
 
     if (!user?.secretWords?.length) {
       throw new BadRequestException('No secret words found for user.');
+    }
+
+    const modelCount =
+      await this.keyStrokeModelService.countModelsByUserId(userId);
+    if (modelCount >= 5) {
+      throw new BadRequestException('You can have a maximum of 5 models.');
     }
 
     // Pobieramy treść secretWord z body
@@ -173,6 +180,12 @@ export class grpcController implements OnModuleInit {
       throw new BadRequestException('Model name is required');
     }
 
+    const model = await this.keyStrokeModelService.findByName(body.modelName);
+
+    if (!model || model.secretWord.user.id !== user.id) {
+      throw new ForbiddenException('You do not own this model');
+    }
+
     try {
       const response = await firstValueFrom(
         this.keystrokeService.DeleteModel({
@@ -180,6 +193,7 @@ export class grpcController implements OnModuleInit {
           modelName: body.modelName,
         }),
       );
+      await this.keyStrokeModelService.deleteByName(body.modelName);
       this.logger.log('gRPC DeleteModel response:', response);
       return response;
     } catch (error) {
@@ -191,7 +205,7 @@ export class grpcController implements OnModuleInit {
   @Post('evaluate')
   async evaluateKeystrokes(
     @Req() req: Request,
-    @Body() body: { modelName: string; secretWord?: string | null },
+    @Body() body: { secretWord?: string | null },
   ): Promise<ks.EvaluateResponse> {
     const userId = req.session.userId;
     if (!userId) {
@@ -204,7 +218,7 @@ export class grpcController implements OnModuleInit {
       throw new BadRequestException('Invalid user or no secret words.');
     }
 
-    const { modelName, secretWord = null } = body;
+    const { secretWord = null } = body;
 
     let selectedSecretWord: SecretWord | null = null;
     if (secretWord) {
@@ -242,8 +256,6 @@ export class grpcController implements OnModuleInit {
       })),
     }));
 
-    console.log(mappedAttempts[0]);
-    //////poprawic to gowno!
     try {
       const response = await firstValueFrom(
         this.keystrokeService.Evaluate({

@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { KeystrokeAttempt } from '../../keystroke/entities/keystrokeAttempt.entity';
 import { SecretWord } from './secret-word.entity';
+import { PasswordCrackAttempt } from 'src/keystroke/entities/passwordCrackAttempt.entity';
 
 @Entity()
 export class User {
@@ -40,4 +41,10 @@ export class User {
 
   @OneToMany(() => KeystrokeAttempt, (attempt) => attempt.userId)
   keystrokeAttempts: KeystrokeAttempt[];
+
+  @OneToMany(() => PasswordCrackAttempt, (attempt) => attempt.user)
+  passwordCrackAttempts: PasswordCrackAttempt[];
+
+  @OneToMany(() => PasswordCrackAttempt, (attempt) => attempt.targetUser)
+  passwordCrackTargets: PasswordCrackAttempt[];
 }

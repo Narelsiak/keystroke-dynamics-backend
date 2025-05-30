@@ -11,6 +11,7 @@ import {
 import { User } from './user.entity';
 import { KeystrokeAttempt } from '../../keystroke/entities/keystrokeAttempt.entity';
 import { KeystrokeModelEntity } from 'src/keystroke/entities/keystrokeModel.entity';
+import { PasswordCrackAttempt } from 'src/keystroke/entities/passwordCrackAttempt.entity';
 
 @Entity()
 export class SecretWord {
@@ -41,4 +42,7 @@ export class SecretWord {
 
   @OneToMany(() => KeystrokeModelEntity, (model) => model.secretWord)
   models: KeystrokeModelEntity[];
+
+  @OneToMany(() => PasswordCrackAttempt, (attempt) => attempt.secretWord)
+  passwordCrackAttempts: PasswordCrackAttempt[];
 }

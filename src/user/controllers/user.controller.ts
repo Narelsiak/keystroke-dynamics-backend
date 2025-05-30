@@ -114,6 +114,15 @@ export class UserController {
     if (!userId) {
       throw new BadRequestException('User not logged in');
     }
+
+    const alreadyUsed = await this.userService.hasUserUsedSecretWord(
+      userId,
+      body.secretWord,
+    );
+    if (alreadyUsed) {
+      throw new BadRequestException('You have already used this secret word');
+    }
+
     await this.userService.deactivateAllSecretWords(userId);
 
     const newSecretWord = await this.userService.addSecretWord(
@@ -146,6 +155,7 @@ export class UserController {
     const activeSecretWord =
       user?.secretWords?.find((sw) => sw.isActive) ?? null;
 
+    console.log(activeSecretWord);
     if (activeSecretWord?.word !== body.secretWord) {
       throw new UnauthorizedException('Invalid secret word');
     }

@@ -68,4 +68,29 @@ export class KeystrokeModelService {
     // Aktywuj wskazany model
     await this.modelRepo.update({ id: model.id }, { isActive: true });
   }
+
+  async deleteByName(modelName: string): Promise<void> {
+    await this.modelRepo.delete({
+      modelName: modelName,
+    });
+  }
+  async findByName(modelName: string): Promise<KeystrokeModelEntity | null> {
+    return await this.modelRepo.findOne({
+      where: { modelName },
+      relations: ['secretWord', 'secretWord.user'],
+    });
+  }
+
+  async countModelsByUserId(userId: number): Promise<number> {
+    return this.modelRepo.count({
+      where: {
+        secretWord: {
+          user: {
+            id: userId,
+          },
+        },
+      },
+      relations: ['secretWord', 'secretWord.user'],
+    });
+  }
 }
