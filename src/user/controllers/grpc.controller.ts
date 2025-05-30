@@ -6,6 +6,9 @@ import {
   BadRequestException,
   OnModuleInit,
   Logger,
+  Post,
+  Body,
+  Query,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { ClientGrpc } from '@nestjs/microservices';
@@ -19,6 +22,7 @@ import { KeystrokeModelService } from 'src/keystroke/services/keystroke-model.se
 interface KeystrokeServiceGrpc {
   Train(data: ks.TrainRequest): Observable<ks.TrainResponse>;
   GetModelCount(data: ks.ModelCountRequest): Observable<ks.ModelCountResponse>;
+  DeleteModel(data: ks.DeleteModelRequest): Observable<ks.DeleteModelResponse>;
 }
 
 @Controller('keystrokes')
@@ -39,7 +43,10 @@ export class grpcController implements OnModuleInit {
   }
 
   @Get('make-model')
-  async makeModel(@Req() req: Request): Promise<ks.TrainResponse> {
+  async makeModel(
+    @Req() req: Request,
+    @Query() body: { secretWord: string | null },
+  ): Promise<ks.TrainResponse> {
     const userId = req.session.userId;
     if (!userId) {
       throw new BadRequestException('User not logged in');
@@ -52,7 +59,7 @@ export class grpcController implements OnModuleInit {
     }
 
     // Pobieramy treść secretWord z body
-    const { secretWord } = (req.body ?? {}) as { secretWord?: string };
+    const { secretWord = null } = body;
 
     let selectedSecretWord: SecretWord | null = null;
     if (secretWord) {
@@ -134,6 +141,41 @@ export class grpcController implements OnModuleInit {
     } catch (error) {
       this.logger.error('Error calling gRPC GetModelCount:', error);
       throw new BadRequestException('Failed to get model count via gRPC');
+    }
+  }
+
+  @Post('delete-model')
+  async deleteModel(
+    @Req() req: Request,
+    @Body() body: { modelName: string },
+  ): Promise<ks.DeleteModelResponse> {
+    const userId = req.session.userId;
+    if (!userId) {
+      throw new BadRequestException('User not logged in');
+    }
+
+    const user = await this.userService.findById(userId);
+
+    if (!user?.email) {
+      throw new BadRequestException('User email not found');
+    }
+
+    if (!body.modelName) {
+      throw new BadRequestException('Model name is required');
+    }
+
+    try {
+      const response = await firstValueFrom(
+        this.keystrokeService.DeleteModel({
+          email: user.email,
+          modelName: body.modelName,
+        }),
+      );
+      this.logger.log('gRPC DeleteModel response:', response);
+      return response;
+    } catch (error) {
+      this.logger.error('Error calling gRPC DeleteModel:', error);
+      throw new BadRequestException('Failed to delete model via gRPC');
     }
   }
 }

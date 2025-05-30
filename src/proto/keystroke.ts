@@ -42,6 +42,14 @@ export namespace keystroke {
     export interface ModelCountResponse {
         count?: number;
     }
+    export interface DeleteModelRequest {
+        email?: string;
+        modelName?: string;
+    }
+    export interface DeleteModelResponse {
+        message?: string;
+        success?: boolean;
+    }
     export interface KeystrokeService {
         train(
             data: TrainRequest,
@@ -53,6 +61,11 @@ export namespace keystroke {
             metadata?: Metadata,
             ...rest: any[]
         ): Observable<ModelCountResponse>;
+        deleteModel(
+            data: DeleteModelRequest,
+            metadata?: Metadata,
+            ...rest: any[]
+        ): Observable<DeleteModelResponse>;
     }
 }
 
