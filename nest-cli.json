@@ -4,6 +4,11 @@
   "sourceRoot": "src",
   "compilerOptions": {
     "deleteOutDir": true,
-    "assets": ["proto/keystroke.proto"]
+        "assets": [
+      {
+        "include": "proto/keystroke.proto",
+        "outDir": "dist"
+      }
+    ]
   }
 }

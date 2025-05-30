@@ -13,6 +13,8 @@ import { firstValueFrom, Observable } from 'rxjs';
 import { UserService } from '../services/user.service';
 import { KeystrokeAttemptService } from 'src/keystroke/services/keystroke-attempt.service';
 import { keystroke as ks } from 'src/proto/keystroke';
+import { SecretWord } from '../entities/secret-word.entity';
+import { KeystrokeModelService } from 'src/keystroke/services/keystroke-model.service';
 
 interface KeystrokeServiceGrpc {
   Train(data: ks.TrainRequest): Observable<ks.TrainResponse>;
@@ -28,6 +30,7 @@ export class grpcController implements OnModuleInit {
     @Inject('KEYSTROKE_PACKAGE') private client: ClientGrpc,
     private readonly userService: UserService,
     private readonly keystrokeAttemptService: KeystrokeAttemptService,
+    private readonly keyStrokeModelService: KeystrokeModelService,
   ) {}
 
   onModuleInit() {
@@ -35,7 +38,7 @@ export class grpcController implements OnModuleInit {
       this.client.getService<KeystrokeServiceGrpc>('KeystrokeService');
   }
 
-  @Get('makemodel')
+  @Get('make-model')
   async makeModel(@Req() req: Request): Promise<ks.TrainResponse> {
     const userId = req.session.userId;
     if (!userId) {
@@ -48,12 +51,24 @@ export class grpcController implements OnModuleInit {
       throw new BadRequestException('No secret words found for user.');
     }
 
-    const latestSecretWord = user.secretWords[user.secretWords.length - 1];
+    // Pobieramy treść secretWord z body
+    const { secretWord } = (req.body ?? {}) as { secretWord?: string };
+
+    let selectedSecretWord: SecretWord | null = null;
+    if (secretWord) {
+      const found = user.secretWords.find((word) => word.word === secretWord);
+      if (!found) {
+        throw new BadRequestException('Given secret word not found.');
+      }
+      selectedSecretWord = found;
+    } else {
+      selectedSecretWord = user.secretWords[user.secretWords.length - 1];
+    }
 
     const attempts =
       await this.keystrokeAttemptService.getAttemptsByUserIdAndSecretWordId(
         userId,
-        latestSecretWord.id,
+        selectedSecretWord.id,
       );
 
     if (attempts.length === 0) {
@@ -80,6 +95,15 @@ export class grpcController implements OnModuleInit {
         }),
       );
       this.logger.log('gRPC Train response:', response);
+      console.log(response.stats?.finalLoss ?? 0);
+      await this.keyStrokeModelService.createModel({
+        modelName: response.id ?? '',
+        isActive: true,
+        trainedAt: new Date(),
+        samplesUsed: response.stats?.samples ?? 0,
+        secretWord: selectedSecretWord,
+        loss: response.stats?.finalLoss ?? 0,
+      });
       return response;
     } catch (error) {
       this.logger.error('Error calling gRPC Train service:', error);

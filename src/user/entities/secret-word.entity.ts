@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { User } from './user.entity';
 import { KeystrokeAttempt } from '../../keystroke/entities/keystrokeAttempt.entity';
+import { KeystrokeModelEntity } from 'src/keystroke/entities/keystrokeModel.entity';
 
 @Entity()
 export class SecretWord {
@@ -34,4 +35,7 @@ export class SecretWord {
 
   @OneToMany(() => KeystrokeAttempt, (attempt) => attempt.secretWord)
   attempts: KeystrokeAttempt[];
+
+  @OneToMany(() => KeystrokeModelEntity, (model) => model.secretWord)
+  models: KeystrokeModelEntity[];
 }
