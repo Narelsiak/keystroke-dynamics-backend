@@ -28,6 +28,7 @@ import { SetSecretWordDto } from 'src/keystroke/dto/set-secret-word.dto';
 import { UpdateUserNameDto } from '../dto/update-user-data.dto';
 import { KeystrokeAttemptDto } from 'src/keystroke/dto/keystroke-attempt.dto';
 import { KeystrokeAttempt } from 'src/keystroke/entities/keystrokeAttempt.entity';
+import { KeystrokeModelService } from 'src/keystroke/services/keystroke-model.service';
 
 @Controller('users')
 export class UserController {
@@ -36,6 +37,7 @@ export class UserController {
     private readonly userService: UserService,
     private readonly keystrokeService: KeystrokeService,
     private readonly keystrokeAttemptService: KeystrokeAttemptService,
+    private readonly keyStrokeModelService: KeystrokeModelService,
   ) {}
 
   // users/register
@@ -285,5 +287,32 @@ export class UserController {
       message: 'Attempt deleted successfully',
       remainingAttempts,
     };
+  }
+  @Get('models')
+  async listModels(@Req() req: Request): Promise<
+    {
+      modelName: string;
+      isActive: boolean;
+      trainedAt: string;
+      samplesUsed: number;
+      loss: number;
+      secretWord: string;
+    }[]
+  > {
+    const userId = req.session.userId;
+    if (!userId) {
+      throw new BadRequestException('User not logged in');
+    }
+
+    const models = await this.keyStrokeModelService.getModelsByUserId(userId);
+
+    return models.map((model) => ({
+      modelName: model.modelName,
+      isActive: model.isActive,
+      trainedAt: model.trainedAt.toISOString(),
+      samplesUsed: model.samplesUsed,
+      loss: model.loss,
+      secretWord: model.secretWord.word,
+    }));
   }
 }

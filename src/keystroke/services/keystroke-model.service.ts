@@ -24,4 +24,18 @@ export class KeystrokeModelService {
     const model = this.modelRepo.create(data);
     return this.modelRepo.save(model);
   }
+
+  async getModelsByUserId(userId: number) {
+    return this.modelRepo.find({
+      where: {
+        secretWord: {
+          user: {
+            id: userId,
+          },
+        },
+      },
+      relations: ['secretWord', 'secretWord.user'],
+      order: { trainedAt: 'DESC' },
+    });
+  }
 }
