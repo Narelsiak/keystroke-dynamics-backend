@@ -144,7 +144,7 @@ export class UserController {
     const user = await this.userService.findById(userId);
 
     const activeSecretWord =
-      user?.secretWords?.find((sw) => sw.isActive) || null;
+      user?.secretWords?.find((sw) => sw.isActive) ?? null;
 
     if (activeSecretWord?.word !== body.secretWord) {
       throw new UnauthorizedException('Invalid secret word');

@@ -23,6 +23,7 @@ interface KeystrokeServiceGrpc {
   Train(data: ks.TrainRequest): Observable<ks.TrainResponse>;
   GetModelCount(data: ks.ModelCountRequest): Observable<ks.ModelCountResponse>;
   DeleteModel(data: ks.DeleteModelRequest): Observable<ks.DeleteModelResponse>;
+  Evaluate(data: ks.EvaluateRequest): Observable<ks.EvaluateResponse>;
 }
 
 @Controller('keystrokes')
@@ -69,7 +70,11 @@ export class grpcController implements OnModuleInit {
       }
       selectedSecretWord = found;
     } else {
-      selectedSecretWord = user.secretWords[user.secretWords.length - 1];
+      selectedSecretWord = user.secretWords.find((sw) => sw.isActive) ?? null;
+    }
+
+    if (!selectedSecretWord) {
+      throw new BadRequestException('No active secret word found.');
     }
 
     const attempts =
@@ -180,6 +185,76 @@ export class grpcController implements OnModuleInit {
     } catch (error) {
       this.logger.error('Error calling gRPC DeleteModel:', error);
       throw new BadRequestException('Failed to delete model via gRPC');
+    }
+  }
+
+  @Post('evaluate')
+  async evaluateKeystrokes(
+    @Req() req: Request,
+    @Body() body: { modelName: string; secretWord?: string | null },
+  ): Promise<ks.EvaluateResponse> {
+    const userId = req.session.userId;
+    if (!userId) {
+      throw new BadRequestException('User not logged in');
+    }
+
+    const user = await this.userService.findById(userId);
+
+    if (!user?.email || !user.secretWords?.length) {
+      throw new BadRequestException('Invalid user or no secret words.');
+    }
+
+    const { modelName, secretWord = null } = body;
+
+    let selectedSecretWord: SecretWord | null = null;
+    if (secretWord) {
+      const found = user.secretWords.find((word) => word.word === secretWord);
+      if (!found) {
+        throw new BadRequestException('Given secret word not found.');
+      }
+      selectedSecretWord = found;
+    } else {
+      selectedSecretWord = user.secretWords.find((sw) => sw.isActive) ?? null;
+      if (!selectedSecretWord) {
+        throw new BadRequestException('No active secret word found.');
+      }
+    }
+
+    const attempts =
+      await this.keystrokeAttemptService.getAttemptsByUserIdAndSecretWordId(
+        userId,
+        selectedSecretWord.id,
+      );
+
+    if (attempts.length === 0) {
+      throw new BadRequestException('No attempts found.');
+    }
+
+    const mappedAttempts: ks.Attempt[] = attempts.map((attempt) => ({
+      keyPresses: attempt.keystrokes.map((event) => ({
+        value: event.character,
+        pressDuration: event.pressDuration,
+        waitDuration: event.waitDuration,
+        shift: event.modifiers.shift,
+        ctrl: event.modifiers.ctrl,
+        alt: event.modifiers.alt,
+        meta: event.modifiers.meta,
+      })),
+    }));
+
+    console.log(mappedAttempts[0]);
+    //////poprawic to gowno!
+    try {
+      const response = await firstValueFrom(
+        this.keystrokeService.Evaluate({
+          attempts: mappedAttempts,
+        }),
+      );
+      this.logger.log('gRPC Evaluate response:', response);
+      return response;
+    } catch (error) {
+      this.logger.error('Error calling gRPC Evaluate service:', error);
+      throw new BadRequestException('Failed to evaluate data via gRPC');
     }
   }
 }

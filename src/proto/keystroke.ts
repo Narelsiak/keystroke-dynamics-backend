@@ -50,6 +50,30 @@ export namespace keystroke {
         message?: string;
         success?: boolean;
     }
+    // delete end
+    export interface EvaluateStats {
+        samples?: number;
+        pressAvg?: number;
+        pressStd?: number;
+        waitAvg?: number;
+        waitStd?: number;
+    }
+    export interface EvaluationAttempt {
+        keyPresses?: keystroke.KeyPress[];
+        isAnomalous?: boolean;
+        score?: number;
+        message?: string;
+    }
+    export interface EvaluateRequest {
+        attempts?: keystroke.Attempt[];
+    }
+    export interface EvaluateResponse {
+        message?: string;
+        stats?: keystroke.EvaluateStats;
+        results?: keystroke.EvaluationAttempt[];
+        anomalies?: string[];
+    }
+    // evaluate data end
     export interface KeystrokeService {
         train(
             data: TrainRequest,
@@ -66,6 +90,11 @@ export namespace keystroke {
             metadata?: Metadata,
             ...rest: any[]
         ): Observable<DeleteModelResponse>;
+        evaluate(
+            data: EvaluateRequest,
+            metadata?: Metadata,
+            ...rest: any[]
+        ): Observable<EvaluateResponse>;
     }
 }
 
