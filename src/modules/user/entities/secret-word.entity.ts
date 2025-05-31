@@ -38,10 +38,10 @@ export class SecretWord {
   user: User;
 
   @OneToMany(() => KeystrokeAttempt, (attempt) => attempt.secretWord)
-  attempts: KeystrokeAttempt[];
+  attempts?: KeystrokeAttempt[];
 
   @OneToMany(() => KeystrokeModelEntity, (model) => model.secretWord)
-  models: KeystrokeModelEntity[];
+  models?: KeystrokeModelEntity[];
 
   @OneToMany(() => PasswordCrackAttempt, (attempt) => attempt.secretWord)
   passwordCrackAttempts: PasswordCrackAttempt[];

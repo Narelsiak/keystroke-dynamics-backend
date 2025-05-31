@@ -42,7 +42,7 @@ export class UserService {
   async login(loginUserDto: LoginUserDto): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { email: loginUserDto.email },
-      relations: ['secretWords', 'secretWords.models'],
+      relations: ['secretWords', 'secretWords.models', 'secretWords.attempts'],
     });
 
     if (!user) {
@@ -118,5 +118,15 @@ export class UserService {
       where: { user: { id: userId }, word },
     });
     return count > 0;
+  }
+  async findSecretWord(userId: number, word: string) {
+    return await this.secretWordRepository.findOne({
+      where: { user: { id: userId }, word },
+    });
+  }
+
+  async activateSecretWord(id: number) {
+    await this.secretWordRepository.update(id, { isActive: true });
+    return this.secretWordRepository.findOne({ where: { id } });
   }
 }

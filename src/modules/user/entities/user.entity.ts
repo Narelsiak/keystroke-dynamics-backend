@@ -39,7 +39,7 @@ export class User {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
-  @OneToMany(() => KeystrokeAttempt, (attempt) => attempt.userId)
+  @OneToMany(() => KeystrokeAttempt, (attempt) => attempt.user)
   keystrokeAttempts: KeystrokeAttempt[];
 
   @OneToMany(() => PasswordCrackAttempt, (attempt) => attempt.user)

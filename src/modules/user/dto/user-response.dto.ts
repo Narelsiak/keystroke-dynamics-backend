@@ -1,6 +1,23 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from '../entities/user.entity';
 
+export class SecretWordSummary {
+  @ApiProperty()
+  id: number;
+
+  @ApiProperty()
+  word: string;
+
+  @ApiProperty()
+  modelCount: number;
+
+  @ApiProperty()
+  attemptCount: number;
+
+  @ApiProperty()
+  hasActiveModel: boolean;
+}
+
 export class UserResponseDto {
   @ApiProperty()
   id: number;
@@ -29,6 +46,12 @@ export class UserResponseDto {
   @ApiProperty()
   createdAt: Date;
 
+  @ApiProperty({ type: SecretWordSummary, nullable: true })
+  activeSecretWord: SecretWordSummary | null;
+
+  @ApiProperty({ type: [SecretWordSummary], isArray: true })
+  inactiveSecretWords: SecretWordSummary[];
+
   constructor(user: User) {
     this.id = user.id;
     this.email = user.email;
@@ -38,16 +61,31 @@ export class UserResponseDto {
     this.createdAt = user.createdAt;
     this.updatedAt = user.updatedAt;
 
-    if (user.secretWords && user.secretWords.length > 0) {
-      const secretWord = user.secretWords.find((word) => word.isActive);
-      if (secretWord) {
-        this.secretWord = secretWord.word;
-        this.hasModel = !!secretWord.models.find((model) => model.isActive);
-        return;
-      }
+    this.inactiveSecretWords = [];
+
+    const active = user.secretWords?.find((w) => w.isActive);
+    const inactive = user.secretWords?.filter((w) => !w.isActive) ?? [];
+
+    if (active) {
+      this.activeSecretWord = {
+        id: active.id,
+        word: active.word,
+        modelCount: active.models?.length ?? 0,
+        attemptCount: active.attempts?.length ?? 0,
+        hasActiveModel: !!active.models?.find((model) => model.isActive),
+      };
+    } else {
+      this.activeSecretWord = null;
     }
 
-    this.secretWord = null;
-    this.hasModel = false;
+    for (const word of inactive) {
+      this.inactiveSecretWords.push({
+        id: word.id,
+        word: word.word,
+        modelCount: word.models?.length ?? 0,
+        attemptCount: word.attempts?.length ?? 0,
+        hasActiveModel: !!word.models?.find((model) => model.isActive),
+      });
+    }
   }
 }

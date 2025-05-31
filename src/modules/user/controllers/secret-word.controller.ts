@@ -23,6 +23,7 @@ import { KeyPressDto } from 'src/modules/keystroke/dto/key-press.dto';
 import { SetSecretWordDto } from 'src/modules/keystroke/dto/set-secret-word.dto';
 import { KeystrokeAttemptDto } from 'src/modules/keystroke/dto/keystroke-attempt.dto';
 import { KeystrokeAttempt } from 'src/modules/keystroke/entities/keystrokeAttempt.entity';
+import { SecretWord } from '../entities/secret-word.entity';
 
 @Controller('secret-word')
 export class SecretWordController {
@@ -42,24 +43,25 @@ export class SecretWordController {
       throw new BadRequestException('User not logged in');
     }
 
-    const alreadyUsed = await this.userService.hasUserUsedSecretWord(
-      userId,
-      body.secretWord,
-    );
-    if (alreadyUsed) {
-      throw new BadRequestException('You have already used this secret word');
-    }
-
     await this.userService.deactivateAllSecretWords(userId);
 
-    const newSecretWord = await this.userService.addSecretWord(
+    const existing = await this.userService.findSecretWord(
       userId,
       body.secretWord,
     );
 
+    let activated: SecretWord | null;
+    if (existing) {
+      activated = await this.userService.activateSecretWord(existing.id);
+    } else {
+      activated = await this.userService.addSecretWord(userId, body.secretWord);
+    }
+
     return {
-      message: 'Secret word added successfully',
-      secretWord: newSecretWord.word,
+      message: existing
+        ? 'Existing secret word reactivated successfully'
+        : 'Secret word added successfully',
+      secretWord: activated?.word ?? 'none',
     };
   }
 

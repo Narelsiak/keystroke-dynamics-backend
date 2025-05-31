@@ -72,12 +72,12 @@ export class UserResponseExtendDto {
       const secretWord = user.secretWords.find((word) => word.isActive);
       if (secretWord) {
         this.secretWord = secretWord.word;
-        this.hasModel = !!secretWord.models.find((model) => model.isActive);
+        this.hasModel = !!secretWord.models?.find((model) => model.isActive);
       }
     }
 
     this.modelCount =
-      user.secretWords?.flatMap((w) => w.models).filter((m) => m.isActive)
+      user.secretWords?.flatMap((w) => w.models).filter((m) => m?.isActive)
         .length ?? 0;
 
     this.crackAttemptsMade = user.passwordCrackAttempts.length;

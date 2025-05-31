@@ -306,7 +306,7 @@ export class grpcController implements OnModuleInit {
       throw new BadRequestException('Secret word not found for target user');
     }
 
-    const model = targetSecretWord.models.find((model) => model.isActive);
+    const model = targetSecretWord.models?.find((model) => model.isActive);
 
     if (!model) {
       throw new BadRequestException(
