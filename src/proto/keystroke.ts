@@ -73,7 +73,16 @@ export namespace keystroke {
         results?: keystroke.EvaluationAttempt[];
         anomalies?: string[];
     }
-    // evaluate data end
+    export interface PredictRequest {
+        modelName?: string;
+        attempt?: keystroke.Attempt;
+        email?: string;
+    }
+    export interface PredictResponse {
+        success?: boolean;
+        similarity?: number;
+        error?: number;
+    }
     export interface KeystrokeService {
         train(
             data: TrainRequest,
@@ -95,6 +104,11 @@ export namespace keystroke {
             metadata?: Metadata,
             ...rest: any[]
         ): Observable<EvaluateResponse>;
+        predict(
+            data: PredictRequest,
+            metadata?: Metadata,
+            ...rest: any[]
+        ): Observable<PredictResponse>;
     }
 }
 

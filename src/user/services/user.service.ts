@@ -42,7 +42,7 @@ export class UserService {
   async login(loginUserDto: LoginUserDto): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { email: loginUserDto.email },
-      relations: ['secretWords'],
+      relations: ['secretWords', 'secretWords.models'],
     });
 
     if (!user) {
@@ -64,7 +64,7 @@ export class UserService {
   async findById(id: number): Promise<User | null> {
     return this.userRepository.findOne({
       where: { id },
-      relations: ['secretWords'],
+      relations: ['secretWords', 'secretWords.models'],
     });
   }
 

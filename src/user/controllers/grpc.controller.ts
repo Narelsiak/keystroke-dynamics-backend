@@ -19,12 +19,15 @@ import { KeystrokeAttemptService } from 'src/keystroke/services/keystroke-attemp
 import { keystroke as ks } from 'src/proto/keystroke';
 import { SecretWord } from '../entities/secret-word.entity';
 import { KeystrokeModelService } from 'src/keystroke/services/keystroke-model.service';
+import { KeyPressDto } from 'src/keystroke/dto/key-press.dto';
+import { KeystrokeService } from 'src/keystroke/services/keystroke.service';
 
 interface KeystrokeServiceGrpc {
   Train(data: ks.TrainRequest): Observable<ks.TrainResponse>;
   GetModelCount(data: ks.ModelCountRequest): Observable<ks.ModelCountResponse>;
   DeleteModel(data: ks.DeleteModelRequest): Observable<ks.DeleteModelResponse>;
   Evaluate(data: ks.EvaluateRequest): Observable<ks.EvaluateResponse>;
+  Predict(data: ks.PredictRequest): Observable<ks.PredictResponse>;
 }
 
 @Controller('keystrokes')
@@ -37,6 +40,7 @@ export class grpcController implements OnModuleInit {
     private readonly userService: UserService,
     private readonly keystrokeAttemptService: KeystrokeAttemptService,
     private readonly keyStrokeModelService: KeystrokeModelService,
+    private readonly keyStrokeServiceKey: KeystrokeService,
   ) {}
 
   onModuleInit() {
@@ -268,5 +272,89 @@ export class grpcController implements OnModuleInit {
       this.logger.error('Error calling gRPC Evaluate service:', error);
       throw new BadRequestException('Failed to evaluate data via gRPC');
     }
+  }
+
+  @Post('predict')
+  async predictAttempt(
+    @Body()
+    body: {
+      keyPresses: KeyPressDto[];
+      secretWord: string;
+      targetUserId: number;
+    },
+    @Req() req: Request,
+  ): Promise<ks.PredictResponse> {
+    const userId = req.session.userId;
+    if (!userId) {
+      throw new BadRequestException('User not logged in');
+    }
+
+    const user = await this.userService.findById(userId);
+    const targetUser = await this.userService.findById(body.targetUserId);
+
+    if (!targetUser?.secretWords) {
+      throw new BadRequestException('Target user not found');
+    }
+
+    const targetSecretWord = targetUser.secretWords.find(
+      (sw) => sw.word === body.secretWord,
+    );
+
+    if (!targetSecretWord?.isActive) {
+      throw new BadRequestException('Secret word not found for target user');
+    }
+
+    const model = targetSecretWord.models.find((model) => model.isActive);
+
+    if (!model) {
+      throw new BadRequestException(
+        'No trained model found for that secret word',
+      );
+    }
+
+    // opcjonalna lokalna walidacja keyPresses
+    const { success } = this.keyStrokeServiceKey.validateUserStyle(
+      body.keyPresses,
+      body.secretWord,
+    );
+
+    if (!success) {
+      throw new BadRequestException('Keystroke validation failed');
+    }
+
+    // GRPC prediction
+    const prediction = await firstValueFrom(
+      this.keystrokeService.Predict({
+        email: user?.email,
+        modelName: model.modelName,
+        attempt: {
+          keyPresses: body.keyPresses.map((kp) => ({
+            value: kp.value,
+            pressDuration: kp.pressDuration,
+            waitDuration: kp.waitDuration,
+            shift: kp.modifiers.shift,
+            ctrl: kp.modifiers.ctrl,
+            alt: kp.modifiers.alt,
+            meta: kp.modifiers.meta,
+          })),
+        },
+      }),
+    );
+
+    this.logger.log('gRPC Evaluate response:', prediction);
+
+    // const { status, similarity, error } = prediction;
+
+    // // Zapisujemy do bazy
+    // await this.passwordCrackAttemptService.create({
+    //   userId,
+    //   targetUserId: targetUser.id,
+    //   secretWordId: targetSecretWord.id,
+    //   success,
+    //   similarity,
+    //   error,
+    // });
+    return prediction;
+    // return { success, similarity, error };
   }
 }
