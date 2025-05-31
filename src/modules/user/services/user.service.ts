@@ -79,7 +79,7 @@ export class UserService {
 
   async findAll(): Promise<User[]> {
     return this.userRepository.find({
-      relations: ['secretWords', 'secretWords.models'],
+      relations: ['secretWords', 'secretWords.models', 'secretWords.attempts'],
     });
   }
 

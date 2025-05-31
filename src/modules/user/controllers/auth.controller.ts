@@ -40,14 +40,14 @@ export class AuthController {
     @Body() loginUserDto: LoginUserDto,
     @Req() req: Request,
   ): Promise<UserResponseDto> {
-    // try {
-    const user = await this.userService.login(loginUserDto);
-    req.session.userId = user.id;
+    try {
+      const user = await this.userService.login(loginUserDto);
+      req.session.userId = user.id;
 
-    return new UserResponseDto(user);
-    // } catch (e) {
-    //   throw new BadRequestException(e.message);
-    // }
+      return new UserResponseDto(user);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
   }
 
   @Get('logout')

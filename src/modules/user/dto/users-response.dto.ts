@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from '../entities/user.entity';
-import { SecretWordSummary} from './secret-word-summary.dto';
+import { SecretWordSummary } from './user-response.dto';
 
-export class UserResponseDto {
+export class UsersResponseDto {
   @ApiProperty()
   id: number;
 
@@ -33,9 +33,6 @@ export class UserResponseDto {
   @ApiProperty({ type: SecretWordSummary, nullable: true })
   activeSecretWord: SecretWordSummary | null;
 
-  @ApiProperty({ type: [SecretWordSummary], isArray: true })
-  inactiveSecretWords: SecretWordSummary[];
-
   constructor(user: User) {
     this.id = user.id;
     this.email = user.email;
@@ -45,10 +42,7 @@ export class UserResponseDto {
     this.createdAt = user.createdAt;
     this.updatedAt = user.updatedAt;
 
-    this.inactiveSecretWords = [];
-
     const active = user.secretWords?.find((w) => w.isActive);
-    const inactive = user.secretWords?.filter((w) => !w.isActive) ?? [];
 
     if (active) {
       this.activeSecretWord = {
@@ -61,17 +55,5 @@ export class UserResponseDto {
     } else {
       this.activeSecretWord = null;
     }
-
-    for (const word of inactive) {
-      this.inactiveSecretWords.push({
-        id: word.id,
-        word: word.word,
-        modelCount: word.models?.length ?? 0,
-        attemptCount: word.attempts?.length ?? 0,
-        hasActiveModel: !!word.models?.find((model) => model.isActive),
-      });
-    }
   }
 }
-export { SecretWordSummary };
-
