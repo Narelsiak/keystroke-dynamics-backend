@@ -7,7 +7,7 @@
         "assets": [
       {
         "include": "proto/keystroke.proto",
-        "outDir": "dist"
+        "outDir": "dist/src/"
       }
     ]
   }

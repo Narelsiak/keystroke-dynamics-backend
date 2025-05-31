@@ -15,12 +15,12 @@ import { Request } from 'express';
 import { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom, Observable } from 'rxjs';
 import { UserService } from '../services/user.service';
-import { KeystrokeAttemptService } from 'src/keystroke/services/keystroke-attempt.service';
+import { KeystrokeAttemptService } from 'src/modules/keystroke/services/keystroke-attempt.service';
 import { keystroke as ks } from 'src/proto/keystroke';
 import { SecretWord } from '../entities/secret-word.entity';
-import { KeystrokeModelService } from 'src/keystroke/services/keystroke-model.service';
-import { KeyPressDto } from 'src/keystroke/dto/key-press.dto';
-import { KeystrokeService } from 'src/keystroke/services/keystroke.service';
+import { KeystrokeModelService } from 'src/modules/keystroke/services/keystroke-model.service';
+import { KeyPressDto } from 'src/modules/keystroke/dto/key-press.dto';
+import { KeystrokeService } from 'src/modules/keystroke/services/keystroke.service';
 
 interface KeystrokeServiceGrpc {
   Train(data: ks.TrainRequest): Observable<ks.TrainResponse>;

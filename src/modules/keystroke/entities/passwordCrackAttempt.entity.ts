@@ -8,8 +8,8 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { SecretWord } from 'src/user/entities/secret-word.entity';
-import { User } from 'src/user/entities/user.entity';
+import { SecretWord } from 'src/modules/user/entities/secret-word.entity';
+import { User } from 'src/modules/user/entities/user.entity';
 
 @Entity('password_crack_attempts')
 export class PasswordCrackAttempt {

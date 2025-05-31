@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 import { KeystrokeAttempt } from '../../keystroke/entities/keystrokeAttempt.entity';
 import { SecretWord } from './secret-word.entity';
-import { PasswordCrackAttempt } from 'src/keystroke/entities/passwordCrackAttempt.entity';
+import { PasswordCrackAttempt } from 'src/modules/keystroke/entities/passwordCrackAttempt.entity';
 
 @Entity()
 export class User {

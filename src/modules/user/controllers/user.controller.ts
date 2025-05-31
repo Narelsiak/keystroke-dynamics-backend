@@ -21,15 +21,15 @@ import { CreateUserDto } from '../dto/create-user.dto';
 import { UserResponseDto } from '../dto/user-response.dto';
 import { Request, Response } from 'express';
 import { LoginUserDto } from '../dto/login-user.dto';
-import { KeystrokeService } from 'src/keystroke/services/keystroke.service';
-import { KeystrokeAttemptService } from 'src/keystroke/services/keystroke-attempt.service';
-import { KeyPressDto } from 'src/keystroke/dto/key-press.dto';
-import { SetSecretWordDto } from 'src/keystroke/dto/set-secret-word.dto';
+import { KeystrokeService } from 'src/modules/keystroke/services/keystroke.service';
+import { KeystrokeAttemptService } from 'src/modules/keystroke/services/keystroke-attempt.service';
+import { KeyPressDto } from 'src/modules/keystroke/dto/key-press.dto';
+import { SetSecretWordDto } from 'src/modules/keystroke/dto/set-secret-word.dto';
 import { UpdateUserNameDto } from '../dto/update-user-data.dto';
-import { KeystrokeAttemptDto } from 'src/keystroke/dto/keystroke-attempt.dto';
-import { KeystrokeAttempt } from 'src/keystroke/entities/keystrokeAttempt.entity';
-import { KeystrokeModelService } from 'src/keystroke/services/keystroke-model.service';
-import { KeystrokeModelDto } from 'src/keystroke/dto/list-keystroke-models-response.dto';
+import { KeystrokeAttemptDto } from 'src/modules/keystroke/dto/keystroke-attempt.dto';
+import { KeystrokeAttempt } from 'src/modules/keystroke/entities/keystrokeAttempt.entity';
+import { KeystrokeModelService } from 'src/modules/keystroke/services/keystroke-model.service';
+import { KeystrokeModelDto } from 'src/modules/keystroke/dto/list-keystroke-models-response.dto';
 
 @Controller('users')
 export class UserController {

@@ -8,7 +8,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { SecretWord } from 'src/user/entities/secret-word.entity';
+import { SecretWord } from 'src/modules/user/entities/secret-word.entity';
 
 @Entity('keystroke_models')
 export class KeystrokeModelEntity {

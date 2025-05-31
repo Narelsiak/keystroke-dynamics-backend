@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { UserService } from './services/user.service';
 import { UserController } from './controllers/user.controller';
-import { KeystrokeModule } from 'src/keystroke/keystroke.module';
+import { KeystrokeModule } from 'src/modules/keystroke/keystroke.module';
 import { SecretWord } from './entities/secret-word.entity';
 import { grpcController } from './controllers/grpc.controller';
 import { ClientsModule, Transport } from '@nestjs/microservices';

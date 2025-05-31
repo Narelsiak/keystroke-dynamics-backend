@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { KeystrokeModelEntity } from '../entities/keystrokeModel.entity';
-import { SecretWord } from 'src/user/entities/secret-word.entity';
+import { SecretWord } from 'src/modules/user/entities/secret-word.entity';
 
 @Injectable()
 export class KeystrokeModelService {
