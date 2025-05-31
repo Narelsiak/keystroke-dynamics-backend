@@ -21,6 +21,7 @@ import { SecretWord } from '../entities/secret-word.entity';
 import { KeystrokeModelService } from 'src/modules/keystroke/services/keystroke-model.service';
 import { KeyPressDto } from 'src/modules/keystroke/dto/key-press.dto';
 import { KeystrokeService } from 'src/modules/keystroke/services/keystroke.service';
+import { PasswordCrackAttemptService } from 'src/modules/keystroke/services/password-crack-attempt.service';
 
 interface KeystrokeServiceGrpc {
   Train(data: ks.TrainRequest): Observable<ks.TrainResponse>;
@@ -41,6 +42,7 @@ export class grpcController implements OnModuleInit {
     private readonly keystrokeAttemptService: KeystrokeAttemptService,
     private readonly keyStrokeModelService: KeystrokeModelService,
     private readonly keyStrokeServiceKey: KeystrokeService,
+    private readonly passwordCrackAttemptService: PasswordCrackAttemptService,
   ) {}
 
   onModuleInit() {
@@ -343,18 +345,17 @@ export class grpcController implements OnModuleInit {
 
     this.logger.log('gRPC Evaluate response:', prediction);
 
-    // const { status, similarity, error } = prediction;
+    const { success: isSuccess, similarity, error } = prediction;
 
-    // // Zapisujemy do bazy
-    // await this.passwordCrackAttemptService.create({
-    //   userId,
-    //   targetUserId: targetUser.id,
-    //   secretWordId: targetSecretWord.id,
-    //   success,
-    //   similarity,
-    //   error,
-    // });
+    // Save to the db
+    await this.passwordCrackAttemptService.create({
+      userId,
+      targetUserId: targetUser.id,
+      secretWordId: targetSecretWord.id,
+      success: isSuccess ?? false,
+      similarity: similarity ?? 0,
+      error: error ?? 0,
+    });
     return prediction;
-    // return { success, similarity, error };
   }
 }
