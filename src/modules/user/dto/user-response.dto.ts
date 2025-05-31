@@ -1,15 +1,32 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { User } from '../entities/user.entity';
 
-// src/user/dto/user-response.dto.ts
 export class UserResponseDto {
+  @ApiProperty()
   id: number;
+
+  @ApiProperty()
   email: string;
+
+  @ApiProperty({ nullable: true })
   secretWord: string | null;
+
+  @ApiProperty()
   hasModel: boolean;
+
+  @ApiProperty({ nullable: true })
   firstName: string | null;
+
+  @ApiProperty({ nullable: true })
   lastName: string | null;
+
+  @ApiProperty()
   isActive: boolean;
+
+  @ApiProperty()
   updatedAt: Date;
+
+  @ApiProperty()
   createdAt: Date;
 
   constructor(user: User) {
@@ -26,10 +43,11 @@ export class UserResponseDto {
       if (secretWord) {
         this.secretWord = secretWord.word;
         this.hasModel = !!secretWord.models.find((model) => model.isActive);
+        return;
       }
-    } else {
-      this.secretWord = null;
-      this.hasModel = false;
     }
+
+    this.secretWord = null;
+    this.hasModel = false;
   }
 }
