@@ -8,12 +8,16 @@ import {
   Body,
   BadRequestException,
   NotFoundException,
+  Param,
+  ParseIntPipe,
 } from '@nestjs/common';
 
 import { UserService } from '../services/user.service';
 import { UserResponseDto } from '../dto/user-response.dto';
 import { Request } from 'express';
 import { UpdateUserNameDto } from '../dto/update-user-data.dto';
+import { ApiOkResponse, ApiOperation, ApiParam } from '@nestjs/swagger';
+import { UserResponseExtendDto } from '../dto/user-response-extend.dto';
 
 @Controller('user')
 export class UserProfileController {
@@ -54,5 +58,22 @@ export class UserProfileController {
       throw new NotFoundException('User not found');
     }
     return new UserResponseDto(updatedUser);
+  }
+  @Get(':id')
+  @ApiOperation({ summary: 'Get user by ID' })
+  @ApiParam({ name: 'id', type: Number, description: 'User ID' })
+  @ApiOkResponse({
+    description: 'Returns user details by ID',
+    type: UserResponseExtendDto,
+  })
+  async getUserById(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<UserResponseExtendDto> {
+    const user = await this.userService.findById(id);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return new UserResponseExtendDto(user);
   }
 }

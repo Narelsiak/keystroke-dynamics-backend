@@ -64,7 +64,16 @@ export class UserService {
   async findById(id: number): Promise<User | null> {
     return this.userRepository.findOne({
       where: { id },
-      relations: ['secretWords', 'secretWords.models'],
+      relations: [
+        'secretWords',
+        'secretWords.models',
+        'passwordCrackTargets',
+        'passwordCrackAttempts',
+        'passwordCrackTargets.user',
+        'passwordCrackAttempts.user',
+        'passwordCrackAttempts.secretWord',
+        'passwordCrackTargets.secretWord',
+      ],
     });
   }
 
