@@ -7,6 +7,8 @@ import { CreateUserDto } from '../dto/create-user.dto';
 import * as bcrypt from 'bcryptjs';
 import { LoginUserDto } from '../dto/login-user.dto';
 import { SecretWord } from '../entities/secret-word.entity';
+import { KeystrokeAttempt } from 'src/modules/keystroke/entities/keystrokeAttempt.entity';
+import { KeystrokeModelEntity } from 'src/modules/keystroke/entities/keystrokeModel.entity';
 
 @Injectable()
 export class UserService {
@@ -16,6 +18,12 @@ export class UserService {
 
     @InjectRepository(SecretWord)
     private secretWordRepository: Repository<SecretWord>,
+
+    @InjectRepository(KeystrokeModelEntity)
+    private readonly keystrokeModelRepo: Repository<KeystrokeModelEntity>,
+
+    @InjectRepository(KeystrokeAttempt)
+    private readonly attemptRepo: Repository<KeystrokeAttempt>,
   ) {}
 
   async register(createUserDto: CreateUserDto): Promise<User> {
@@ -125,8 +133,29 @@ export class UserService {
     });
   }
 
-  async activateSecretWord(id: number) {
+  async activateSecretWord(id: number): Promise<SecretWord | null> {
     await this.secretWordRepository.update(id, { isActive: true });
     return this.secretWordRepository.findOne({ where: { id } });
+  }
+  async countModels(secretWordId: number): Promise<number> {
+    return this.keystrokeModelRepo.count({
+      where: { secretWord: { id: secretWordId } },
+    });
+  }
+
+  async countAttempts(secretWordId: number): Promise<number> {
+    return this.attemptRepo.count({
+      where: { secretWord: { id: secretWordId } },
+    });
+  }
+
+  async hasActiveModel(secretWordId: number): Promise<boolean> {
+    const activeModel = await this.keystrokeModelRepo.findOne({
+      where: {
+        secretWord: { id: secretWordId },
+        isActive: true,
+      },
+    });
+    return !!activeModel;
   }
 }

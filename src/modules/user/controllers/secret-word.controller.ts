@@ -37,7 +37,15 @@ export class SecretWordController {
   async setSecretWord(
     @Body() body: SetSecretWordDto,
     @Req() req: Request,
-  ): Promise<{ message: string; secretWord: string }> {
+  ): Promise<{
+    activeSecretWord: {
+      id: number;
+      word: string;
+      modelCount: number;
+      attemptCount: number;
+      hasActiveModel: boolean;
+    };
+  }> {
     const userId = req.session.userId;
     if (!userId) {
       throw new BadRequestException('User not logged in');
@@ -57,11 +65,22 @@ export class SecretWordController {
       activated = await this.userService.addSecretWord(userId, body.secretWord);
     }
 
+    if (!activated) {
+      throw new InternalServerErrorException('Failed to activate secret word');
+    }
+
+    const modelCount = await this.userService.countModels(activated.id);
+    const attemptCount = await this.userService.countAttempts(activated.id);
+    const hasActiveModel = await this.userService.hasActiveModel(activated.id);
+
     return {
-      message: existing
-        ? 'Existing secret word reactivated successfully'
-        : 'Secret word added successfully',
-      secretWord: activated?.word ?? 'none',
+      activeSecretWord: {
+        id: activated.id,
+        word: activated.word,
+        modelCount,
+        attemptCount,
+        hasActiveModel,
+      },
     };
   }
 

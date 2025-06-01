@@ -12,10 +12,17 @@ import { AuthController } from './controllers/auth.controller';
 import { UserProfileController } from './controllers/user-profile.controller';
 import { ModelController } from './controllers/model.controller';
 import { SecretWordController } from './controllers/secret-word.controller';
+import { KeystrokeModelEntity } from '../keystroke/entities/keystrokeModel.entity';
+import { KeystrokeAttempt } from '../keystroke/entities/keystrokeAttempt.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, SecretWord]),
+    TypeOrmModule.forFeature([
+      User,
+      SecretWord,
+      KeystrokeModelEntity,
+      KeystrokeAttempt,
+    ]),
     KeystrokeModule,
     ClientsModule.register([
       {
