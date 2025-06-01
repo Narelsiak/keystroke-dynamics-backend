@@ -18,6 +18,7 @@ export class KeystrokeModelService {
     modelName: string;
     isActive: boolean;
     trainedAt: Date;
+    acceptance_threshold: number;
     samplesUsed: number;
     loss: number;
   }) {

@@ -53,7 +53,7 @@ export class grpcController implements OnModuleInit {
   @Get('make-model')
   async makeModel(
     @Req() req: Request,
-    @Query() body: { secretWord: string | null },
+    @Query() body: { secretWord: string | null; threshold?: number },
   ): Promise<ks.TrainResponse> {
     const userId = req.session.userId;
     if (!userId) {
@@ -88,6 +88,16 @@ export class grpcController implements OnModuleInit {
 
     if (!selectedSecretWord) {
       throw new BadRequestException('No active secret word found.');
+    }
+
+    const thresholdPercent = body.threshold ?? 80;
+
+    if (
+      isNaN(thresholdPercent) ||
+      thresholdPercent < 0 ||
+      thresholdPercent > 100
+    ) {
+      throw new BadRequestException('Invalid threshold value');
     }
 
     const attempts =
@@ -130,6 +140,7 @@ export class grpcController implements OnModuleInit {
         isActive: true,
         trainedAt: new Date(),
         samplesUsed: response.stats?.samples ?? 0,
+        acceptance_threshold: thresholdPercent,
         secretWord: selectedSecretWord,
         loss: response.stats?.finalLoss ?? 0,
       });

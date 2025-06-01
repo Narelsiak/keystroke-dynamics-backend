@@ -27,6 +27,9 @@ export class KeystrokeModelEntity {
   @CreateDateColumn({ name: 'trained_at' })
   trainedAt: Date;
 
+  @Column({ name: 'acceptance_threshold', type: 'float', default: 80 })
+  acceptanceThreshold: number;
+
   @Column({ name: 'samples_used' })
   samplesUsed: number;
 
