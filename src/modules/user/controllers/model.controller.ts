@@ -11,6 +11,7 @@ import {
 import { Request } from 'express';
 import { KeystrokeModelService } from 'src/modules/keystroke/services/keystroke-model.service';
 import { KeystrokeModelDto } from 'src/modules/keystroke/dto/list-keystroke-models-response.dto';
+import { KeystrokeModelEntity } from 'src/modules/keystroke/entities/keystrokeModel.entity';
 
 @Controller('model')
 export class ModelController {
@@ -61,6 +62,35 @@ export class ModelController {
     } catch (error) {
       console.error('Error activating model:', error);
       throw new BadRequestException('Activation failed');
+    }
+  }
+  @Patch('threshold')
+  async updateModelThreshold(
+    @Body('modelName') modelName: string,
+    @Body('threshold') threshold: number,
+    @Req() req: Request,
+  ): Promise<KeystrokeModelEntity> {
+    const userId = req.session.userId;
+    if (!userId) {
+      throw new BadRequestException('User not logged in');
+    }
+
+    if (typeof threshold !== 'number' || threshold < 0 || threshold > 100) {
+      throw new BadRequestException(
+        'Threshold must be a number between 0 and 100',
+      );
+    }
+
+    try {
+      const response = await this.keyStrokeModelService.updateThreshold(
+        modelName,
+        userId,
+        threshold,
+      );
+      return response;
+    } catch (error) {
+      console.error('Error updating threshold:', error);
+      throw new BadRequestException('Threshold update failed');
     }
   }
 }
