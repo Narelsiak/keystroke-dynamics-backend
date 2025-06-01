@@ -338,7 +338,7 @@ export class grpcController implements OnModuleInit {
     // GRPC prediction
     const prediction = await firstValueFrom(
       this.keystrokeService.Predict({
-        email: user?.email,
+        email: targetUser.email,
         modelName: model.modelName,
         attempt: {
           keyPresses: body.keyPresses.map((kp) => ({
