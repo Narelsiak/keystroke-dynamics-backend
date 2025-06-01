@@ -356,14 +356,21 @@ export class grpcController implements OnModuleInit {
 
     this.logger.log('gRPC Evaluate response:', prediction);
 
-    const { success: isSuccess, similarity, error } = prediction;
+    const { similarity, error } = prediction;
+
+    const activeModel = targetSecretWord.models?.find(
+      (model) => model.isActive,
+    );
+    const threshold = activeModel?.acceptanceThreshold ?? 85; // fallback jeśli undefined
+
+    const status = (similarity ?? 0) >= threshold;
 
     // Save to the db
     await this.passwordCrackAttemptService.create({
       userId,
       targetUserId: targetUser.id,
       secretWordId: targetSecretWord.id,
-      success: isSuccess ?? false,
+      success: status,
       similarity: similarity ?? 0,
       error: error ?? 0,
     });
