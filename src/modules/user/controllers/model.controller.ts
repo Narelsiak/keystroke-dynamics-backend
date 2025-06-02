@@ -31,6 +31,7 @@ export class ModelController {
       isActive: model.isActive,
       trainedAt: model.trainedAt.toISOString(),
       samplesUsed: model.samplesUsed,
+      threshold: model.acceptanceThreshold,
       loss: model.loss,
       secretWord: model.secretWord.word,
     }));
