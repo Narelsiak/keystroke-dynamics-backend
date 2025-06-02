@@ -95,4 +95,27 @@ export class ModelController {
       throw new BadRequestException('Threshold update failed');
     }
   }
+  @Patch('name')
+  async updateModelName(
+    @Body('modelName') modelName: string,
+    @Body('name') name: string,
+    @Req() req: Request,
+  ): Promise<KeystrokeModelDtoThreshold> {
+    const userId = req.session.userId;
+    if (!userId) {
+      throw new BadRequestException('User not logged in');
+    }
+
+    try {
+      const modelEntity = await this.keyStrokeModelService.updateModelName(
+        modelName,
+        userId,
+        name,
+      );
+      return new KeystrokeModelDtoThreshold(modelEntity);
+    } catch (error) {
+      console.error('Error updating threshold:', error);
+      throw new BadRequestException('Threshold update failed');
+    }
+  }
 }

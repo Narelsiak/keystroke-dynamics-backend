@@ -9,6 +9,9 @@ export class KeystrokeModelDtoThreshold {
   modelName: string;
 
   @ApiProperty()
+  name: string;
+
+  @ApiProperty()
   acceptanceThreshold: number;
 
   @ApiProperty()
@@ -25,6 +28,7 @@ export class KeystrokeModelDtoThreshold {
 
   constructor(entity: KeystrokeModelEntity) {
     this.id = entity.id;
+    this.name = entity.name;
     this.modelName = entity.modelName;
     this.acceptanceThreshold = entity.acceptanceThreshold;
     this.samplesUsed = entity.samplesUsed;

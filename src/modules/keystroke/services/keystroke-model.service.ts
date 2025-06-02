@@ -119,4 +119,28 @@ export class KeystrokeModelService {
     model.acceptanceThreshold = threshold;
     return await this.modelRepo.save(model);
   }
+  async updateModelName(
+    modelName: string,
+    userId: number,
+    name: string,
+  ): Promise<KeystrokeModelEntity> {
+    const model = await this.modelRepo.findOne({
+      where: {
+        modelName,
+        secretWord: {
+          user: {
+            id: userId,
+          },
+        },
+      },
+      relations: ['secretWord', 'secretWord.user'],
+    });
+
+    if (!model) {
+      throw new Error('Model not found or not authorized');
+    }
+
+    model.name = name;
+    return await this.modelRepo.save(model);
+  }
 }
