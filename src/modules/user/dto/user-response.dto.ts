@@ -1,6 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from '../entities/user.entity';
-import { SecretWordSummary } from './secret-word-summary.dto';
+import {
+  SecretWordActiveSummary,
+  SecretWordSummary,
+} from './secret-word-summary.dto';
 
 export class UserResponseDto {
   @ApiProperty()
@@ -31,7 +34,7 @@ export class UserResponseDto {
   createdAt: Date;
 
   @ApiProperty({ type: SecretWordSummary, nullable: true })
-  activeSecretWord: SecretWordSummary | null;
+  activeSecretWord: SecretWordActiveSummary | null;
 
   @ApiProperty({ type: [SecretWordSummary], isArray: true })
   inactiveSecretWords: SecretWordSummary[];
@@ -57,6 +60,7 @@ export class UserResponseDto {
         modelCount: active.models?.length ?? 0,
         attemptCount: active.attempts?.length ?? 0,
         hasActiveModel: !!active.models?.find((model) => model.isActive),
+        attempts: [],
       };
     } else {
       this.activeSecretWord = null;
