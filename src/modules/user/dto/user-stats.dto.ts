@@ -29,6 +29,13 @@ class AttackOnMeEntry {
   secretWordId: number;
   secretWord: string;
   attackers: AttackerStats[];
+
+  totalAttempts: number;
+  totalSuccesses: number;
+  maxSimilarity: number;
+  minSimilarity: number;
+  maxError: number;
+  minError: number;
 }
 
 class WordStats {
@@ -108,10 +115,18 @@ export class UserStatsDto {
         });
       }
 
+      const allAttempts = [...attackerMap.values()].flat();
+
       this.attacksOnMe.push({
         secretWordId: wordId,
-        secretWord: [...attackerMap.values()][0][0].word,
+        secretWord: allAttempts[0].word,
         attackers,
+        totalAttempts: allAttempts.length,
+        totalSuccesses: allAttempts.filter((a) => a.success).length,
+        maxSimilarity: Math.max(...allAttempts.map((a) => a.similarity)),
+        minSimilarity: Math.min(...allAttempts.map((a) => a.similarity)),
+        maxError: Math.max(...allAttempts.map((a) => a.error)),
+        minError: Math.min(...allAttempts.map((a) => a.error)),
       });
     }
 

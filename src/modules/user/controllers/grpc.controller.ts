@@ -364,6 +364,7 @@ export class grpcController implements OnModuleInit {
     const threshold = activeModel?.acceptanceThreshold ?? 85; // fallback jeśli undefined
 
     const status = (similarity ?? 0) >= threshold;
+    prediction.success = status;
 
     // Save to the db
     await this.passwordCrackAttemptService.create({
