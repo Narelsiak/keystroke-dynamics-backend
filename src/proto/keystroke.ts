@@ -61,8 +61,7 @@ export namespace keystroke {
     export interface EvaluationAttempt {
         keyPresses?: keystroke.KeyPress[];
         isAnomalous?: boolean;
-        score?: number;
-        message?: string;
+        message?: string[];
     }
     export interface EvaluateRequest {
         attempts?: keystroke.Attempt[];
