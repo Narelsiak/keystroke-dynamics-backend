@@ -133,7 +133,7 @@ export class UserStatsDto {
     // === Attacks BY me ===
     const groupedByAttacker = new Map<number, Map<number, CrackEntry[]>>();
 
-    for (const attempt of user.passwordCrackTargets) {
+    for (const attempt of user.passwordCrackAttempts) {
       if (!attempt.secretWord || !attempt.userId) continue;
 
       const wordId = attempt.secretWord.id;
