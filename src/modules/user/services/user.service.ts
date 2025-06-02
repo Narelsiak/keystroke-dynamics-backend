@@ -81,6 +81,8 @@ export class UserService {
         'passwordCrackAttempts.user',
         'passwordCrackAttempts.secretWord',
         'passwordCrackTargets.secretWord',
+        'passwordCrackTargets.targetUser',
+        'passwordCrackAttempts.targetUser',
       ],
     });
   }
@@ -157,5 +159,14 @@ export class UserService {
       },
     });
     return !!activeModel;
+  }
+
+  async getInactiveSecretWords(userId: number): Promise<SecretWord[]> {
+    return this.secretWordRepository.find({
+      where: {
+        userId,
+        isActive: false,
+      },
+    });
   }
 }

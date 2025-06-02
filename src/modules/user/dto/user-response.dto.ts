@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from '../entities/user.entity';
-import { SecretWordSummary} from './secret-word-summary.dto';
+import { SecretWordSummary } from './secret-word-summary.dto';
 
 export class UserResponseDto {
   @ApiProperty()
@@ -74,4 +74,3 @@ export class UserResponseDto {
   }
 }
 export { SecretWordSummary };
-

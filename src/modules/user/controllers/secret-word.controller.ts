@@ -44,7 +44,15 @@ export class SecretWordController {
       modelCount: number;
       attemptCount: number;
       hasActiveModel: boolean;
+      attempts: KeystrokeAttemptDto[];
     };
+    inactiveSecretWords: {
+      id: number;
+      word: string;
+      modelCount: number;
+      attemptCount: number;
+      hasActiveModel: boolean;
+    }[];
   }> {
     const userId = req.session.userId;
     if (!userId) {
@@ -73,6 +81,44 @@ export class SecretWordController {
     const attemptCount = await this.userService.countAttempts(activated.id);
     const hasActiveModel = await this.userService.hasActiveModel(activated.id);
 
+    const attemptsRaw =
+      await this.keystrokeAttemptService.getAttemptsByUserIdAndSecretWordId(
+        userId,
+        activated.id,
+      );
+
+    const attempts: KeystrokeAttemptDto[] = attemptsRaw.map((attempt) => ({
+      id: attempt.id,
+      createdAt: attempt.createdAt,
+      keyPresses: attempt.keystrokes.map((event) => ({
+        value: event.character,
+        pressedAt: event.pressedAt.toISOString(),
+        releasedAt: event.releasedAt.toISOString(),
+        pressDuration: event.pressDuration,
+        waitDuration: event.waitDuration,
+        modifiers: event.modifiers,
+      })),
+    }));
+
+    const inactiveWordsRaw =
+      await this.userService.getInactiveSecretWords(userId);
+
+    const inactiveSecretWords = await Promise.all(
+      inactiveWordsRaw.map(async (word) => {
+        const modelCount = await this.userService.countModels(word.id);
+        const attemptCount = await this.userService.countAttempts(word.id);
+        const hasActiveModel = await this.userService.hasActiveModel(word.id);
+
+        return {
+          id: word.id,
+          word: word.word,
+          modelCount,
+          attemptCount,
+          hasActiveModel,
+        };
+      }),
+    );
+
     return {
       activeSecretWord: {
         id: activated.id,
@@ -80,7 +126,9 @@ export class SecretWordController {
         modelCount,
         attemptCount,
         hasActiveModel,
+        attempts,
       },
+      inactiveSecretWords,
     };
   }
 

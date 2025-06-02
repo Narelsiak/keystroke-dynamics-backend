@@ -18,6 +18,7 @@ import { Request } from 'express';
 import { UpdateUserNameDto } from '../dto/update-user-data.dto';
 import { ApiOkResponse, ApiOperation, ApiParam } from '@nestjs/swagger';
 import { UserResponseExtendDto } from '../dto/user-response-extend.dto';
+import { UserStatsDto } from '../dto/user-stats.dto';
 
 @Controller('user')
 export class UserProfileController {
@@ -36,6 +37,19 @@ export class UserProfileController {
     }
 
     return new UserResponseDto(user);
+  }
+  @Get('stats')
+  async getStats(@Req() req: Request): Promise<UserStatsDto> {
+    if (!req.session.userId) {
+      throw new UnauthorizedException();
+    }
+
+    const user = await this.userService.findById(req.session.userId);
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+
+    return new UserStatsDto(user);
   }
   @Patch('name')
   async updateUserName(
