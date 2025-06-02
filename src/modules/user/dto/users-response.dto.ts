@@ -54,10 +54,10 @@ export class UsersResponseDto {
         id: active.id,
         word: active.word,
         modelCount: active.models?.length ?? 0,
-        attemptCount: active.attempts?.length ?? 0,
+        samplesCount: active.attempts?.length ?? 0,
         hasActiveModel: !!active.models?.find((model) => model.isActive),
-        myAttempts: myAttempts.length,
-        mySuccessfulAttempts: successfulAttempts,
+        myAttemptsCount: myAttempts.length,
+        mySuccessfulAttemptsCount: successfulAttempts,
       };
     } else {
       this.activeSecretWord = null;

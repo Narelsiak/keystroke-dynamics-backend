@@ -12,7 +12,7 @@ export class SecretWordSummary {
   modelCount: number;
 
   @ApiProperty()
-  attemptCount: number;
+  samplesCount: number;
 
   @ApiProperty()
   hasActiveModel: boolean;
@@ -23,6 +23,6 @@ export class SecretWordActiveSummary extends SecretWordSummary {
 }
 
 export class SecretWordAttemptsSummary extends SecretWordSummary {
-  myAttempts: number;
-  mySuccessfulAttempts: number;
+  myAttemptsCount: number;
+  mySuccessfulAttemptsCount: number;
 }

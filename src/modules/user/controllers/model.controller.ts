@@ -11,7 +11,6 @@ import {
 import { Request } from 'express';
 import { KeystrokeModelService } from 'src/modules/keystroke/services/keystroke-model.service';
 import { KeystrokeModelDto } from 'src/modules/keystroke/dto/list-keystroke-models-response.dto';
-import { KeystrokeModelEntity } from 'src/modules/keystroke/entities/keystrokeModel.entity';
 import { KeystrokeModelDtoThreshold } from '../dto/change-threshold.dto';
 
 @Controller('model')

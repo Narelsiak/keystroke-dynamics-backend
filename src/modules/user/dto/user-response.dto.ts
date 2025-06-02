@@ -58,7 +58,7 @@ export class UserResponseDto {
         id: active.id,
         word: active.word,
         modelCount: active.models?.length ?? 0,
-        attemptCount: active.attempts?.length ?? 0,
+        samplesCount: active.attempts?.length ?? 0,
         hasActiveModel: !!active.models?.find((model) => model.isActive),
         attempts: [],
       };
@@ -71,7 +71,7 @@ export class UserResponseDto {
         id: word.id,
         word: word.word,
         modelCount: word.models?.length ?? 0,
-        attemptCount: word.attempts?.length ?? 0,
+        samplesCount: word.attempts?.length ?? 0,
         hasActiveModel: !!word.models?.find((model) => model.isActive),
       });
     }
