@@ -12,6 +12,7 @@ import { Request } from 'express';
 import { KeystrokeModelService } from 'src/modules/keystroke/services/keystroke-model.service';
 import { KeystrokeModelDto } from 'src/modules/keystroke/dto/list-keystroke-models-response.dto';
 import { KeystrokeModelEntity } from 'src/modules/keystroke/entities/keystrokeModel.entity';
+import { KeystrokeModelDtoThreshold } from '../dto/change-threshold.dto';
 
 @Controller('model')
 export class ModelController {
@@ -70,7 +71,7 @@ export class ModelController {
     @Body('modelName') modelName: string,
     @Body('threshold') threshold: number,
     @Req() req: Request,
-  ): Promise<KeystrokeModelEntity> {
+  ): Promise<KeystrokeModelDtoThreshold> {
     const userId = req.session.userId;
     if (!userId) {
       throw new BadRequestException('User not logged in');
@@ -83,12 +84,12 @@ export class ModelController {
     }
 
     try {
-      const response = await this.keyStrokeModelService.updateThreshold(
+      const modelEntity = await this.keyStrokeModelService.updateThreshold(
         modelName,
         userId,
         threshold,
       );
-      return response;
+      return new KeystrokeModelDtoThreshold(modelEntity);
     } catch (error) {
       console.error('Error updating threshold:', error);
       throw new BadRequestException('Threshold update failed');

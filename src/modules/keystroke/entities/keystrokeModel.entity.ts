@@ -13,7 +13,7 @@ import { SecretWord } from 'src/modules/user/entities/secret-word.entity';
 @Entity('keystroke_models')
 export class KeystrokeModelEntity {
   @PrimaryGeneratedColumn()
-  id: string;
+  id: number;
 
   @Column({ name: 'secret_word_id' })
   secretWordId: number;
