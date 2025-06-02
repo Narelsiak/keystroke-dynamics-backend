@@ -92,8 +92,8 @@ export class SecretWordController {
       createdAt: attempt.createdAt,
       keyPresses: attempt.keystrokes.map((event) => ({
         value: event.character,
-        pressedAt: event.pressedAt.toISOString(),
-        releasedAt: event.releasedAt.toISOString(),
+        pressedAt: event.pressedAt,
+        releasedAt: event.releasedAt,
         pressDuration: event.pressDuration,
         waitDuration: event.waitDuration,
         modifiers: event.modifiers,
@@ -208,8 +208,8 @@ export class SecretWordController {
       isCorrect: true,
       keyPresses: attempt.keystrokes.map((event) => ({
         value: event.character,
-        pressedAt: event.pressedAt.toString(),
-        releasedAt: event.releasedAt.toString(),
+        pressedAt: event.pressedAt,
+        releasedAt: event.releasedAt,
         pressDuration: event.pressDuration,
         waitDuration: event.waitDuration,
         modifiers: event.modifiers,
@@ -261,8 +261,8 @@ export class SecretWordController {
         createdAt: attempt.createdAt,
         keyPresses: attempt.keystrokes.map((event) => ({
           value: event.character,
-          pressedAt: event.pressedAt.toString(),
-          releasedAt: event.releasedAt.toString(),
+          pressedAt: event.pressedAt,
+          releasedAt: event.releasedAt,
           pressDuration: event.pressDuration,
           waitDuration: event.waitDuration,
           modifiers: event.modifiers,

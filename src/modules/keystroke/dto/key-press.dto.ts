@@ -4,6 +4,7 @@ import {
   IsDefined,
   IsBoolean,
   ValidateNested,
+  IsDate,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -30,13 +31,13 @@ export class KeyPressDto {
   @IsDefined()
   value: string;
 
-  @IsString()
-  @IsDefined()
-  pressedAt: string;
+  @Type(() => Date)
+  @IsDate()
+  pressedAt: Date;
 
-  @IsString()
-  @IsDefined()
-  releasedAt: string;
+  @Type(() => Date)
+  @IsDate()
+  releasedAt: Date;
 
   @IsNumber()
   @IsDefined()

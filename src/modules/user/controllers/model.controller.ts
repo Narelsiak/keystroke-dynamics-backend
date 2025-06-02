@@ -30,7 +30,7 @@ export class ModelController {
       modelName: model.modelName,
       name: model.name,
       isActive: model.isActive,
-      trainedAt: model.trainedAt.toISOString(),
+      trainedAt: model.trainedAt,
       samplesUsed: model.samplesUsed,
       threshold: model.acceptanceThreshold,
       loss: model.loss,
@@ -56,7 +56,7 @@ export class ModelController {
       return models.map((model) => ({
         modelName: model.modelName,
         isActive: model.isActive,
-        trainedAt: model.trainedAt.toISOString(),
+        trainedAt: model.trainedAt,
         samplesUsed: model.samplesUsed,
         loss: model.loss,
         secretWord: model.secretWord.word,

@@ -1,7 +1,7 @@
 export class KeystrokeModelDto {
   modelName: string;
   isActive: boolean;
-  trainedAt: string;
+  trainedAt: Date;
   samplesUsed: number;
   loss: number;
   secretWord: string;
