@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { KeyPressDto } from 'src/modules/keystroke/dto/key-press.dto';
+import { KeystrokeModelEntity } from 'src/modules/keystroke/entities/keystrokeModel.entity';
 
 export class SecretWordSummary {
   @ApiProperty()
@@ -25,4 +26,5 @@ export class SecretWordActiveSummary extends SecretWordSummary {
 export class SecretWordAttemptsSummary extends SecretWordSummary {
   myAttemptsCount: number;
   mySuccessfulAttemptsCount: number;
+  model: KeystrokeModelEntity | null;
 }

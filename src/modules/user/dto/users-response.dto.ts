@@ -58,6 +58,7 @@ export class UsersResponseDto {
         hasActiveModel: !!active.models?.find((model) => model.isActive),
         myAttemptsCount: myAttempts.length,
         mySuccessfulAttemptsCount: successfulAttempts,
+        model: active.models?.find((model) => model.isActive) ?? null,
       };
     } else {
       this.activeSecretWord = null;
