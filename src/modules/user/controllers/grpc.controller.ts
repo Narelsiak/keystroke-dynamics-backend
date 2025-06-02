@@ -53,7 +53,12 @@ export class grpcController implements OnModuleInit {
   @Get('make-model')
   async makeModel(
     @Req() req: Request,
-    @Query() body: { secretWord: string | null; threshold?: number },
+    @Query()
+    body: {
+      secretWord: string | null;
+      threshold?: number;
+      name?: string | null;
+    },
   ): Promise<ks.TrainResponse> {
     const userId = req.session.userId;
     if (!userId) {
@@ -143,6 +148,7 @@ export class grpcController implements OnModuleInit {
         acceptance_threshold: thresholdPercent,
         secretWord: selectedSecretWord,
         loss: response.stats?.finalLoss ?? 0,
+        name: body.name ?? response.id ?? '',
       });
       return response;
     } catch (error) {

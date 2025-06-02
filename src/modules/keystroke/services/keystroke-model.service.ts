@@ -21,6 +21,7 @@ export class KeystrokeModelService {
     acceptance_threshold: number;
     samplesUsed: number;
     loss: number;
+    name: string;
   }) {
     const model = this.modelRepo.create(data);
     return this.modelRepo.save(model);

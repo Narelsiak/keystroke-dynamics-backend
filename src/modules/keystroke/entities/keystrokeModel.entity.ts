@@ -21,6 +21,9 @@ export class KeystrokeModelEntity {
   @Column({ name: 'model_name' })
   modelName: string;
 
+  @Column({ name: 'model_show_name' })
+  name: string;
+
   @Column({ name: 'is_active', default: false })
   isActive: boolean;
 
