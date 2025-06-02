@@ -21,3 +21,8 @@ export class SecretWordSummary {
 export class SecretWordActiveSummary extends SecretWordSummary {
   attempts: KeyPressDto[];
 }
+
+export class SecretWordAttemptsSummary extends SecretWordSummary {
+  myAttempts: number;
+  successfulAttempts: number;
+}

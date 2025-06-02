@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from '../entities/user.entity';
-import { SecretWordSummary } from './user-response.dto';
+import { SecretWordAttemptsSummary } from './secret-word-summary.dto';
 
 export class UsersResponseDto {
   @ApiProperty()
@@ -30,10 +30,10 @@ export class UsersResponseDto {
   @ApiProperty()
   createdAt: Date;
 
-  @ApiProperty({ type: SecretWordSummary, nullable: true })
-  activeSecretWord: SecretWordSummary | null;
+  @ApiProperty({ type: SecretWordAttemptsSummary, nullable: true })
+  activeSecretWord: SecretWordAttemptsSummary | null;
 
-  constructor(user: User) {
+  constructor(user: User, userId?: number) {
     this.id = user.id;
     this.email = user.email;
     this.firstName = user.firstName;
@@ -45,12 +45,19 @@ export class UsersResponseDto {
     const active = user.secretWords?.find((w) => w.isActive);
 
     if (active) {
+      const myAttempts = active.passwordCrackAttempts.filter(
+        (a) => a.userId == userId,
+      );
+      const successfulAttempts = myAttempts.filter((a) => a.success).length;
+
       this.activeSecretWord = {
         id: active.id,
         word: active.word,
         modelCount: active.models?.length ?? 0,
         attemptCount: active.attempts?.length ?? 0,
         hasActiveModel: !!active.models?.find((model) => model.isActive),
+        myAttempts: myAttempts.length,
+        successfulAttempts: successfulAttempts,
       };
     } else {
       this.activeSecretWord = null;
