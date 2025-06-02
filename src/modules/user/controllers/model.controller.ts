@@ -17,7 +17,7 @@ import { KeystrokeModelEntity } from 'src/modules/keystroke/entities/keystrokeMo
 export class ModelController {
   constructor(private readonly keyStrokeModelService: KeystrokeModelService) {}
 
-  @Get('')
+  @Get('list')
   async listModels(@Req() req: Request): Promise<KeystrokeModelDto[]> {
     const userId = req.session.userId;
     if (!userId) {
