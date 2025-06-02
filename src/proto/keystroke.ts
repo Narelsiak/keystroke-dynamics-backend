@@ -51,26 +51,27 @@ export namespace keystroke {
         success?: boolean;
     }
     // delete end
+    export interface StatEntry {
+        avg?: number;
+        std?: number;
+    }
     export interface EvaluateStats {
-        samples?: number;
-        pressAvg?: number;
-        pressStd?: number;
-        waitAvg?: number;
-        waitStd?: number;
+        pressStats?: keystroke.StatEntry[];
+        waitStats?: keystroke.StatEntry[];
     }
     export interface EvaluationAttempt {
-        keyPresses?: keystroke.KeyPress[];
+        id?: number;
         isAnomalous?: boolean;
         message?: string[];
     }
     export interface EvaluateRequest {
         attempts?: keystroke.Attempt[];
+        id?: number[];
     }
     export interface EvaluateResponse {
         message?: string;
         stats?: keystroke.EvaluateStats;
         results?: keystroke.EvaluationAttempt[];
-        anomalies?: string[];
     }
     export interface PredictRequest {
         modelName?: string;

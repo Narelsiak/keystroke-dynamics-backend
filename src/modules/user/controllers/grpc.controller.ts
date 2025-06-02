@@ -229,7 +229,7 @@ export class grpcController implements OnModuleInit {
   async evaluateKeystrokes(
     @Req() req: Request,
     @Body() body: { secretWord?: string | null },
-  ): Promise<ks.EvaluateResponse> {
+  ): Promise<any> {
     const userId = req.session.userId;
     if (!userId) {
       throw new BadRequestException('User not logged in');
@@ -279,14 +279,43 @@ export class grpcController implements OnModuleInit {
       })),
     }));
 
+    const mappedId: number[] = attempts.map((attempt) => attempt.id);
+
     try {
       const response = await firstValueFrom(
         this.keystrokeService.Evaluate({
           attempts: mappedAttempts,
+          id: mappedId,
         }),
       );
-      this.logger.log('gRPC Evaluate response:', response);
-      return response;
+
+      if (!response.results) return;
+      const resultMap = new Map<
+        number,
+        { message: string[]; isAnomalous: boolean }
+      >();
+      for (const result of response.results) {
+        if (typeof result.id === 'number') {
+          resultMap.set(result.id, {
+            message: result.message ?? [],
+            isAnomalous: result.isAnomalous ?? false,
+          });
+        }
+      }
+      // 1. Dodajemy message + isAnomalous do attemptów
+      const enrichedAttempts = attempts.map((attempt) => {
+        const res = resultMap.get(attempt.id);
+        return {
+          ...attempt,
+          message: res?.message ?? [],
+          isAnomalous: res?.isAnomalous ?? false,
+        };
+      });
+      return {
+        attempts: enrichedAttempts,
+        pressStat: response.stats?.pressStats,
+        waitStat: response.stats?.waitStats,
+      };
     } catch (error) {
       this.logger.error('Error calling gRPC Evaluate service:', error);
       throw new BadRequestException('Failed to evaluate data via gRPC');
