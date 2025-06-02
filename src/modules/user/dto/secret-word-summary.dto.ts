@@ -24,5 +24,5 @@ export class SecretWordActiveSummary extends SecretWordSummary {
 
 export class SecretWordAttemptsSummary extends SecretWordSummary {
   myAttempts: number;
-  successfulAttempts: number;
+  mySuccessfulAttempts: number;
 }
