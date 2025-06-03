@@ -50,8 +50,8 @@ class WordStats {
 }
 
 class AttacksByUserEntry {
-  attackerId: number;
-  attackerEmail: string;
+  targetId: number;
+  targetEmail: string;
   words: WordStats[];
 }
 
@@ -91,7 +91,7 @@ export class UserStatsDto {
         error: attempt.error ?? 0,
         createdAt: attempt.createdAt,
         attackerId,
-        attackerEmail: attempt.user.email,
+        attackerEmail: attempt.targetUser.email,
         word: attempt.secretWord.word,
         wordId,
       });
@@ -131,58 +131,66 @@ export class UserStatsDto {
     }
 
     // === Attacks BY me ===
-    const groupedByAttacker = new Map<number, Map<number, CrackEntry[]>>();
+    const groupedByTarget = new Map<
+      number,
+      { targetEmail: string; words: Map<number, CrackEntry[]> }
+    >();
 
     for (const attempt of user.passwordCrackAttempts) {
-      if (!attempt.secretWord || !attempt.userId) continue;
+      if (!attempt.secretWord || !attempt.targetUserId) continue;
 
+      const targetId = attempt.targetUserId;
       const wordId = attempt.secretWord.id;
-      const attackerId = attempt.user.id;
 
-      if (!groupedByAttacker.has(attackerId)) {
-        groupedByAttacker.set(attackerId, new Map());
+      if (!groupedByTarget.has(targetId)) {
+        groupedByTarget.set(targetId, {
+          targetEmail: attempt.targetUser.email,
+          words: new Map<number, CrackEntry[]>(),
+        });
       }
 
-      const wordMap = groupedByAttacker.get(attackerId)!;
+      const targetGroup = groupedByTarget.get(targetId)!;
 
-      if (!wordMap.has(wordId)) {
-        wordMap.set(wordId, []);
+      if (!targetGroup.words.has(wordId)) {
+        targetGroup.words.set(wordId, []);
       }
 
-      wordMap.get(wordId)!.push({
+      targetGroup.words.get(wordId)!.push({
         similarity: attempt.similarity,
         success: attempt.success,
         error: attempt.error ?? 0,
         createdAt: attempt.createdAt,
-        attackerId,
+        attackerId: attempt.user.id,
         attackerEmail: attempt.user.email,
+        targetId,
+        targetEmail: attempt.targetUser.email,
         word: attempt.secretWord.word,
         wordId,
       });
     }
 
-    for (const [attackerId, wordMap] of groupedByAttacker) {
-      const words: WordStats[] = [];
+    for (const [targetId, { targetEmail, words }] of groupedByTarget) {
+      const wordStats: WordStats[] = [];
 
-      for (const [wordId, attempts] of wordMap) {
+      for (const [wordId, attempts] of words) {
         const stats = this.computeStats(attempts);
 
-        words.push({
+        wordStats.push({
           secretWordId: wordId,
           secretWord: attempts[0].word,
           attemptsCount: attempts.length,
           successCount: stats.successes,
           avgError: stats.avgError,
           avgSimilarity: stats.avgSimilarity,
-          isMine: wordId === user.id,
+          isMine: targetId == attempts[0].attackerId,
           attempts,
         });
       }
 
       this.attacksByMe.push({
-        attackerId,
-        attackerEmail: [...wordMap.values()][0][0].attackerEmail ?? '',
-        words,
+        targetId,
+        targetEmail,
+        words: wordStats,
       });
     }
   }
