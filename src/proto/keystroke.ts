@@ -54,6 +54,7 @@ export namespace keystroke {
     export interface StatEntry {
         avg?: number;
         std?: number;
+        key?: string;
     }
     export interface EvaluateStats {
         pressStats?: keystroke.StatEntry[];
