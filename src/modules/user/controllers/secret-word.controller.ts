@@ -89,6 +89,7 @@ export class SecretWordController {
     const attempts: KeystrokeAttemptDto[] = attemptsRaw.map((attempt) => ({
       id: attempt.id,
       createdAt: attempt.createdAt,
+      isCorrect: true,
       keyPresses: attempt.keystrokes.map((event) => ({
         value: event.character,
         pressedAt: event.pressedAt,
@@ -166,9 +167,11 @@ export class SecretWordController {
         keyPresses,
         activeSecretWord.id,
       );
+
       return {
         id: sample.id,
         createdAt: sample.createdAt,
+        isCorrect: true,
         keyPresses: sample.keystrokes.map((event) => ({
           value: event.character,
           pressedAt: event.pressedAt,
