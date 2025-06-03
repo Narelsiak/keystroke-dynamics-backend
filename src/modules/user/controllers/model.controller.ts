@@ -55,9 +55,11 @@ export class ModelController {
 
       return models.map((model) => ({
         modelName: model.modelName,
+        name: model.name,
         isActive: model.isActive,
         trainedAt: model.trainedAt,
         samplesUsed: model.samplesUsed,
+        threshold: model.acceptanceThreshold,
         loss: model.loss,
         secretWord: model.secretWord.word,
       }));
