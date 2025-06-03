@@ -361,7 +361,7 @@ export class grpcController implements OnModuleInit {
     }
 
     // opcjonalna lokalna walidacja keyPresses
-    const { success } = this.keyStrokeServiceKey.validateUserStyle(
+    const { success, keyPresses } = this.keyStrokeServiceKey.validateUserStyle(
       body.keyPresses,
       body.secretWord,
     );
@@ -376,7 +376,7 @@ export class grpcController implements OnModuleInit {
         email: targetUser.email,
         modelName: model.modelName,
         attempt: {
-          keyPresses: body.keyPresses.map((kp) => ({
+          keyPresses: keyPresses.map((kp) => ({
             value: kp.value,
             pressDuration: kp.pressDuration,
             waitDuration: kp.waitDuration,
