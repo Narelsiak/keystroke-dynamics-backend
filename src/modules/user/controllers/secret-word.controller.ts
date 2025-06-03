@@ -257,7 +257,7 @@ export class SecretWordController {
     const remainingAttempts: KeystrokeAttemptDto[] = remaining.map(
       (attempt) => ({
         id: attempt.id,
-        isCorrect: false,
+        isCorrect: true,
         createdAt: attempt.createdAt,
         keyPresses: attempt.keystrokes.map((event) => ({
           value: event.character,
