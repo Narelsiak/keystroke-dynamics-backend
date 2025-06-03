@@ -22,7 +22,6 @@ import { KeystrokeAttemptService } from 'src/modules/keystroke/services/keystrok
 import { KeyPressDto } from 'src/modules/keystroke/dto/key-press.dto';
 import { SetSecretWordDto } from 'src/modules/keystroke/dto/set-secret-word.dto';
 import { KeystrokeAttemptDto } from 'src/modules/keystroke/dto/keystroke-attempt.dto';
-import { KeystrokeAttempt } from 'src/modules/keystroke/entities/keystrokeAttempt.entity';
 import { SecretWord } from '../entities/secret-word.entity';
 
 @Controller('secret-word')
@@ -140,7 +139,7 @@ export class SecretWordController {
       secretWord: string;
     },
     @Req() req: Request,
-  ): Promise<{ attempt: KeystrokeAttempt }> {
+  ): Promise<KeystrokeAttemptDto> {
     const userId = req.session.userId;
     if (!userId) {
       throw new BadRequestException('User not logged in');
@@ -162,12 +161,22 @@ export class SecretWordController {
     );
 
     if (success) {
+      const sample = await this.keystrokeAttemptService.saveAttempt(
+        userId,
+        keyPresses,
+        activeSecretWord.id,
+      );
       return {
-        attempt: await this.keystrokeAttemptService.saveAttempt(
-          userId,
-          keyPresses,
-          activeSecretWord.id,
-        ),
+        id: sample.id,
+        createdAt: sample.createdAt,
+        keyPresses: sample.keystrokes.map((event) => ({
+          value: event.character,
+          pressedAt: event.pressedAt,
+          releasedAt: event.releasedAt,
+          pressDuration: event.pressDuration,
+          waitDuration: event.waitDuration,
+          modifiers: event.modifiers,
+        })),
       };
     } else {
       throw new BadRequestException('Keystroke validation failed');
