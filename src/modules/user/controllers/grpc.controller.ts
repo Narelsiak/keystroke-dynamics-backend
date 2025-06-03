@@ -145,7 +145,7 @@ export class grpcController implements OnModuleInit {
         isActive: true,
         trainedAt: new Date(),
         samplesUsed: response.stats?.samples ?? 0,
-        acceptance_threshold: thresholdPercent,
+        acceptanceThreshold: thresholdPercent,
         secretWord: selectedSecretWord,
         loss: response.stats?.finalLoss ?? 0,
         name: body.name ?? response.id ?? '',

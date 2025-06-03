@@ -18,11 +18,12 @@ export class KeystrokeModelService {
     modelName: string;
     isActive: boolean;
     trainedAt: Date;
-    acceptance_threshold: number;
+    acceptanceThreshold: number;
     samplesUsed: number;
     loss: number;
     name: string;
   }) {
+    console.log(data);
     const model = this.modelRepo.create(data);
     return this.modelRepo.save(model);
   }
