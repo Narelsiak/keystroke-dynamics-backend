@@ -91,7 +91,7 @@ export class UserStatsDto {
         error: attempt.error ?? 0,
         createdAt: attempt.createdAt,
         attackerId,
-        attackerEmail: attempt.targetUser.email,
+        attackerEmail: attempt.user.email,
         word: attempt.secretWord.word,
         wordId,
       });
