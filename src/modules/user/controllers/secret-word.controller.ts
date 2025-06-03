@@ -171,7 +171,7 @@ export class SecretWordController {
       return {
         id: sample.id,
         createdAt: sample.createdAt,
-        isCorrect: true,
+        isCorrect: null,
         keyPresses: sample.keystrokes.map((event) => ({
           value: event.character,
           pressedAt: event.pressedAt,
