@@ -337,7 +337,6 @@ export class grpcController implements OnModuleInit {
       throw new BadRequestException('User not logged in');
     }
 
-    const user = await this.userService.findById(userId);
     const targetUser = await this.userService.findById(body.targetUserId);
 
     if (!targetUser?.secretWords) {
@@ -351,6 +350,8 @@ export class grpcController implements OnModuleInit {
     if (!targetSecretWord?.isActive) {
       throw new BadRequestException('Secret word not found for target user');
     }
+
+    console.log(targetSecretWord.models);
 
     const model = targetSecretWord.models?.find((model) => model.isActive);
 
